@@ -1,3 +1,4 @@
+import logging
 import os
 
 
@@ -41,9 +42,15 @@ def gpio_handler(settings, **kwargs) -> bool:
     return False
 
 
+def run(settings, arguments, **kwargs) -> bool:
+    command = " ".join(arguments)
+    return passthrough(settings, command)
+
+
 def passthrough(settings, command, **kwargs) -> bool:
     try:
         if not os.path.exists(settings.fifo_path):
+            print("File does not exist.")
             return False
 
         with open(settings.fifo_path, "w") as f:
@@ -51,15 +58,18 @@ def passthrough(settings, command, **kwargs) -> bool:
 
         return True
     except:
+        logging.exception("Exception encountered while writing.")
         return False
 
 
 MODULE = {
+    "play": pause,
     "pause": pause,
     "load": load,
     "mute": mute,
     "loop": loop,
     "stop": stop,
     "exit": exit,
-    "passthrough": passthrough,
+    "buttons": gpio_handler,
+    "": run,
 }
