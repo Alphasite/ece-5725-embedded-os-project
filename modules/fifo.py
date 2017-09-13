@@ -37,6 +37,53 @@ def mute(settings, arguments, **kwargs) -> bool:
     return passthrough(settings, command="mute {0}".format(iterations))
 
 
+def gpio_handler_1_button(settings, **kwargs) -> bool:
+    import RPi.GPIO as GPIO
+
+    try:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+
+        while True:
+            time.sleep(0.2)
+            if not GPIO.input(23):
+                print("Button 23: has been pressed!")
+    finally:
+        GPIO.cleanup()
+
+    return False
+
+
+def gpio_handler_4_button(settings, **kwargs) -> bool:
+    import RPi.GPIO as GPIO
+
+    try:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(17, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+        GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+        GPIO.setup(26, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+        GPIO.setup(26, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+
+        while True:
+            if not GPIO.input(17):
+                print("Button 17: has been pressed!")
+
+            if not GPIO.input(23):
+                print("Button 23: has been pressed!")
+
+            if not GPIO.input(26):
+                print("Button 26: has been pressed!")
+
+            if not GPIO.input(27):
+                print("Button 27: has been pressed!")
+
+            time.sleep(0.2)
+    finally:
+        GPIO.cleanup()
+
+    return False
+
+
 def gpio_handler(settings, **kwargs) -> bool:
     import RPi.GPIO as GPIO
 
@@ -82,5 +129,6 @@ MODULE = {
     "stop": stop,
     "exit": exit,
     "buttons": gpio_handler,
+    "one_button": gpio_handler_1_button,
     "": run,
 }
