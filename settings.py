@@ -1,1 +1,1 @@
-fifo_path = "video_fifo"
+fifo_path = "/home/pi/fifos/video_fifo"

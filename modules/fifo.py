@@ -1,6 +1,6 @@
 import logging
 import os
-
+import time
 
 def exit(settings, **kwargs) -> bool:
     return passthrough(settings, command="exit")
@@ -38,7 +38,18 @@ def mute(settings, arguments, **kwargs) -> bool:
 
 
 def gpio_handler(settings, **kwargs) -> bool:
+    import RPi.GPIO as GPIO
 
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+
+    while True:
+        time.sleep(0.2)
+        if not GPIO.input(23):
+            # Button is Pressed
+            print("Button 23: has been pressed!")
+    
+    GPIO.cleanup()
     return False
 
 
