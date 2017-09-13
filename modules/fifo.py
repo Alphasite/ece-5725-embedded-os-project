@@ -57,7 +57,7 @@ def gpio_handler_4_button(settings, **kwargs) -> bool:
 
     try:
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(17, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+        GPIO.setup(17, GPIO.IN, pull_up_down =git pu GPIO.PUD_UP)
         GPIO.setup(22, GPIO.IN, pull_up_down = GPIO.PUD_UP)
         GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
         GPIO.setup(27, GPIO.IN, pull_up_down = GPIO.PUD_UP)
