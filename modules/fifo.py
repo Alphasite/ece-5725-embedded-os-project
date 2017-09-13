@@ -51,8 +51,6 @@ def gpio_handler_1_button(settings, **kwargs) -> bool:
     finally:
         GPIO.cleanup()
 
-    return False
-
 
 def gpio_handler_4_button(settings, **kwargs) -> bool:
     import RPi.GPIO as GPIO
@@ -60,18 +58,18 @@ def gpio_handler_4_button(settings, **kwargs) -> bool:
     try:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(17, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+        GPIO.setup(22, GPIO.IN, pull_up_down = GPIO.PUD_UP)
         GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-        GPIO.setup(26, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-        GPIO.setup(26, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+        GPIO.setup(27, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
         while True:
             if not GPIO.input(17):
                 print("Button 17: has been pressed!")
 
-            if not GPIO.input(23):
+            if not GPIO.input(22):
                 print("Button 23: has been pressed!")
 
-            if not GPIO.input(26):
+            if not GPIO.input(23):
                 print("Button 26: has been pressed!")
 
             if not GPIO.input(27):
@@ -80,8 +78,6 @@ def gpio_handler_4_button(settings, **kwargs) -> bool:
             time.sleep(0.2)
     finally:
         GPIO.cleanup()
-
-    return False
 
 
 def gpio_handler(settings, **kwargs) -> bool:
@@ -95,7 +91,7 @@ def gpio_handler(settings, **kwargs) -> bool:
         if not GPIO.input(23):
             # Button is Pressed
             print("Button 23: has been pressed!")
-    
+
     GPIO.cleanup()
     return False
 
