@@ -79,7 +79,7 @@ def gpio_handler_4_button(settings, **kwargs) -> bool:
 
             if not GPIO.input(27):
                 print("Exit Button Pressed.")
-                passthrough(settings, command="exit")
+                passthrough(settings, command="quit")
 
             time.sleep(0.2)
     finally:
