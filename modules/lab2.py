@@ -46,6 +46,7 @@ def gpio_handler_6_button(settings, **kwargs) -> bool:
             time.sleep(0.2)
 
             if time.time() - timestamp > 10:
+                passthrough(settings, command="quit")
                 break
 
     finally:
