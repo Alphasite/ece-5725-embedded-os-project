@@ -3,6 +3,8 @@ import os
 import time
 import sys
 
+#Hi this is Adam making a simple change
+
 def exit(settings, **kwargs) -> bool:
     return passthrough(settings, command="quit")
 
