@@ -7,7 +7,7 @@ sudo SDL_VIDEODRIVER=fbcon SDL_FBDEV=/dev/fb1 mplayer \
     -input file=/home/pi/fifos/video_fifo \
     -framedrop /home/pi/bigbuckbunny320p.mp4 \
     -v sdl \
-    >log $0.log \
+    >$0.log \
     &
 
 echo #########################
