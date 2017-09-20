@@ -1,8 +1,8 @@
-import logging
-import os
-import time
 import sys
 import threading
+import time
+
+from modules.fifo import passthrough
 
 done_semaphore = threading.Semaphore(0)
 fifo_write_lock = threading.Lock()
@@ -88,22 +88,6 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
         done_semaphore.acquire()
     finally:
         GPIO.cleanup()
-
-
-def passthrough(settings, command, **kwargs) -> bool:
-    try:
-        with fifo_write_lock:
-            if not os.path.exists(settings.fifo_path):
-                print("File does not exist.")
-                return False
-
-            with open(settings.fifo_path, "w") as f:
-                f.write("{command}\n".format(command=command))
-
-        return True
-    except:
-        logging.exception("Exception encountered while writing.")
-        return False
 
 
 MODULE = {
