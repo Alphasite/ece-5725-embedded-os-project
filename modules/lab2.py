@@ -52,27 +52,27 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup([17, 22, 23, 27, 26, 19], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-        def pause():
+        def pause(channel):
             passthrough(settings, command="pause")
             print("Pause Button Pressed.")
 
-        def seek_forwards_1():
+        def seek_forwards_1(channel):
             passthrough(settings, command="seek 1 0")
             print("Fwd x10 Button Pressed.")
 
-        def seek_back_1():
+        def seek_back_1(channel):
             passthrough(settings, command="seek -1 0")
             print("Rew x10 Button Pressed.")
 
-        def seek_back_3():
+        def seek_back_3(channel):
             passthrough(settings, command="seek -3 0")
             print("Rew x30 Button Pressed.")
 
-        def seek_forwards_3():
+        def seek_forwards_3(channel):
             passthrough(settings, command="seek 3 0")
             print("Fwd x30 Button Pressed.")
 
-        def quit():
+        def quit(channel):
             passthrough(settings, command="quit")
             print("Quit Button Pressed.")
             done_semaphore.release()
