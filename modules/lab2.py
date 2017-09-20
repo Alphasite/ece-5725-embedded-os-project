@@ -51,6 +51,8 @@ def gpio_handler_6_button(settings, **kwargs) -> bool:
     finally:
         GPIO.cleanup()
 
+    return True
+
 
 def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
     import RPi.GPIO as GPIO
@@ -92,10 +94,12 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
         GPIO.add_event_detect(27, GPIO.FALLING, callback=quit, bouncetime=300)
 
         time.sleep(10)
+        quit(None)
         # done_semaphore.acquire()
     finally:
         GPIO.cleanup()
 
+    return True
 
 MODULE = {
     "six_button": gpio_handler_6_button,
