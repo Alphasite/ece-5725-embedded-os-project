@@ -1,4 +1,5 @@
 import sys
+import os
 import threading
 import time
 
@@ -105,6 +106,8 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
 
 
 def ball_1(settings, **kwargs):
+    os.putenv('SDL_FBDEV', '/dev/fb1')
+
     pygame.init()
 
     size = width, height = 320, 240
@@ -131,7 +134,10 @@ def ball_1(settings, **kwargs):
         screen.blit(ball, ballrect)
         pygame.display.flip()
 
+
 def ball_2(settings, **kwargs):
+    os.putenv('SDL_FBDEV', '/dev/fb1')
+
     pygame.init()
 
     size = width, height = 320, 240
@@ -172,6 +178,8 @@ def ball_2(settings, **kwargs):
 
 
 def ball_2_collide(settings, **kwargs):
+    os.putenv('SDL_FBDEV', '/dev/fb1')
+
     pygame.init()
 
     size = width, height = 320, 240
@@ -217,6 +225,7 @@ def ball_2_collide(settings, **kwargs):
         screen.blit(ball, ballrect)
         screen.blit(ball2, ballrect2)
         pygame.display.flip()
+
 
 MODULE = {
     "six_button": gpio_handler_6_button,
