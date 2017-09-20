@@ -62,16 +62,5 @@ def passthrough(settings, command, **kwargs) -> bool:
 
 
 MODULE = {
-    "play": pause,
-    "pause": pause,
-    "load": load,
-    "mute": mute,
-    "loop": loop,
-    "stop": stop,
-    "exit": exit,
-    "buttons": gpio_handler,
-    "one_button": gpio_handler_1_button,
-    "four_button": gpio_handler_4_button,
 	"six_button": gpio_handler_6_button,
-    "": run,
 }
