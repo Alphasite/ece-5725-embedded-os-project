@@ -7,7 +7,6 @@ from modules.fifo import passthrough
 timestamp = time.time()
 
 done_semaphore = threading.Semaphore(0)
-fifo_write_lock = threading.Lock()
 
 
 def gpio_handler_6_button(settings, **kwargs) -> bool:
