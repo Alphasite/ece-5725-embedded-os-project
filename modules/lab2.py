@@ -76,7 +76,6 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
             passthrough(settings, command="quit")
             print("Quit Button Pressed.")
             done_semaphore.release()
-            sys.exit()
 
         GPIO.add_event_detect(17, GPIO.FALLING, callback=pause, bouncetime=300)
         GPIO.add_event_detect(19, GPIO.FALLING, callback=seek_forwards_3, bouncetime=300)
@@ -86,6 +85,7 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
         GPIO.add_event_detect(27, GPIO.FALLING, callback=quit, bouncetime=300)
 
         done_semaphore.acquire()
+        sys.exit()
     finally:
         GPIO.cleanup()
 
