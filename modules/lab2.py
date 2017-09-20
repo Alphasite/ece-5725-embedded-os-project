@@ -92,7 +92,7 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
 
 def passthrough(settings, command, **kwargs) -> bool:
     try:
-        with fifo_write_lock.lock():
+        with fifo_write_lock:
             if not os.path.exists(settings.fifo_path):
                 print("File does not exist.")
                 return False
