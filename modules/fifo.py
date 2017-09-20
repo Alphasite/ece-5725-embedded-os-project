@@ -2,8 +2,9 @@ import logging
 import os
 import time
 
+
 def exit(settings, **kwargs) -> bool:
-    return passthrough(settings, command="exit")
+    return passthrough(settings, command="quit")
 
 
 def stop(settings, **kwargs) -> bool:
@@ -104,8 +105,8 @@ def gpio_handler(settings, **kwargs) -> bool:
                 print("Rew x10 Button Pressed.")
 
             if not GPIO.input(27):
-                print("Exit Button Pressed.")
                 passthrough(settings, command="quit")
+                print("Quit Button Pressed.")
 
             time.sleep(0.2)
     finally:

@@ -23,7 +23,7 @@ def print_module(module, depth):
 
 def parse_command(args, module, break_loop, settings):
     if len(args) == 0 or args[0] == "help":
-        print_help("Vic-Jenkins Deployment Tool", module)
+        print_help("FIFO Tool", module)
         return
 
     command_path = args[0].split('.')
