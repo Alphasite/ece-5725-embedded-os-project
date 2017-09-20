@@ -43,10 +43,10 @@ def gpio_handler_6_button(settings, **kwargs) -> bool:
                 print("Fwd x30 Button Pressed.")
 
             time.sleep(0.2)
-			
+
 			if time.time() - timestamp > 10:
 			    sys.exit()
-			
+
     finally:
         GPIO.cleanup()
 
@@ -89,11 +89,9 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
         GPIO.add_event_detect(23, GPIO.FALLING, callback=seek_back_1, bouncetime=300)
         GPIO.add_event_detect(26, GPIO.FALLING, callback=seek_back_3, bouncetime=300)
         GPIO.add_event_detect(27, GPIO.FALLING, callback=quit, bouncetime=300)
-		
-		time.sleep(10)
+
+        time.sleep(10)
         #done_semaphore.acquire()
-        sys.exit()
-	
     finally:
         GPIO.cleanup()
 
