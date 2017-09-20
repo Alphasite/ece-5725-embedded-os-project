@@ -2,6 +2,8 @@ import sys
 import threading
 import time
 
+import pygame
+
 from modules.fifo import passthrough
 
 timestamp = time.time()
@@ -101,7 +103,125 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
 
     return True
 
+
+def ball_1(settings, **kwargs):
+    pygame.init()
+
+    size = width, height = 320, 240
+    speed = [2, 2]
+    black = 0, 0, 0
+
+    screen = pygame.display.set_mode(size)
+
+    ball = pygame.image.load("resources/lab2/ball.png")
+    ball = pygame.transform.scale(ball, (50, 50))
+    ballrect = ball.get_rect()
+
+    while 1:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: sys.exit()
+
+        ballrect = ballrect.move(speed)
+        if ballrect.left < 0 or ballrect.right > width:
+            speed[0] = -speed[0]
+        if ballrect.top < 0 or ballrect.bottom > height:
+            speed[1] = -speed[1]
+
+        screen.fill(black)
+        screen.blit(ball, ballrect)
+        pygame.display.flip()
+
+def ball_2(settings, **kwargs):
+    pygame.init()
+
+    size = width, height = 320, 240
+    speed = [2, 2]
+    speed2 = [3, 2]
+    black = 0, 0, 0
+
+    screen = pygame.display.set_mode(size)
+
+    ball = pygame.image.load("resources/lab2/ball.png")
+    ball = pygame.transform.scale(ball, (50, 50))
+    ballrect = ball.get_rect()
+
+    ball2 = pygame.image.load("resources/lab2/tennis_ball.png")
+    ball2 = pygame.transform.scale(ball2, (30, 30))
+    ballrect2 = ball2.get_rect()
+
+    while 1:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: sys.exit()
+
+        ballrect = ballrect.move(speed)
+        if ballrect.left < 0 or ballrect.right > width:
+            speed[0] = -speed[0]
+        if ballrect.top < 0 or ballrect.bottom > height:
+            speed[1] = -speed[1]
+
+        ballrect2 = ballrect2.move(speed2)
+        if ballrect2.left < 0 or ballrect2.right > width:
+            speed2[0] = -speed2[0]
+        if ballrect2.top < 0 or ballrect2.bottom > height:
+            speed2[1] = -speed2[1]
+
+        screen.fill(black)
+        screen.blit(ball, ballrect)
+        screen.blit(ball2, ballrect2)
+        pygame.display.flip()
+
+
+def ball_2_collide(settings, **kwargs):
+    pygame.init()
+
+    size = width, height = 320, 240
+    speed = [2, 2]
+    speed2 = [3, 2]
+    black = 0, 0, 0
+
+    screen = pygame.display.set_mode(size)
+
+    ball = pygame.image.load("resources/lab2/ball.png")
+    ball = pygame.transform.scale(ball, (50, 50))
+    ballrect = ball.get_rect()
+
+    ball2 = pygame.image.load("resources/lab2/tennis_ball.png")
+    ball2 = pygame.transform.scale(ball2, (30, 30))
+    ballrect2 = ball2.get_rect()
+    ballrect2 = ballrect2.move([width / 2, height / 2])
+
+    while 1:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: sys.exit()
+
+        ballrect = ballrect.move(speed)
+        if ballrect.left < 0 or ballrect.right > width:
+            speed[0] = -speed[0]
+        if ballrect.top < 0 or ballrect.bottom > height:
+            speed[1] = -speed[1]
+
+        ballrect2 = ballrect2.move(speed2)
+        if ballrect2.left < 0 or ballrect2.right > width:
+            speed2[0] = -speed2[0]
+        if ballrect2.top < 0 or ballrect2.bottom > height:
+            speed2[1] = -speed2[1]
+
+        if ballrect.colliderect(ballrect2):
+            speed[0] *= -1
+            speed[1] *= -1
+
+            speed2[0] *= -1
+            speed2[1] *= -0.8
+
+        screen.fill(black)
+        screen.blit(ball, ballrect)
+        screen.blit(ball2, ballrect2)
+        pygame.display.flip()
+
 MODULE = {
     "six_button": gpio_handler_6_button,
     "six_button_interrupt": gpio_handler_6_button_interrupt,
+    "ball_1": ball_1,
+    "ball_2": ball_2,
+    "ball_2_collide": ball_2_collide,
 }
