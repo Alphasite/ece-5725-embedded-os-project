@@ -9,6 +9,7 @@ timestamp = time.time()
 done_semaphore = threading.Semaphore(0)
 fifo_write_lock = threading.Lock()
 
+
 def gpio_handler_6_button(settings, **kwargs) -> bool:
     import RPi.GPIO as GPIO
 
@@ -32,7 +33,7 @@ def gpio_handler_6_button(settings, **kwargs) -> bool:
             if not GPIO.input(27):
                 passthrough(settings, command="quit")
                 print("Quit Button Pressed.")
-                sys.exit()
+                break
 
             if not GPIO.input(26):
                 passthrough(settings, command="seek -3 0")
@@ -44,8 +45,8 @@ def gpio_handler_6_button(settings, **kwargs) -> bool:
 
             time.sleep(0.2)
 
-			if time.time() - timestamp > 10:
-			    sys.exit()
+            if time.time() - timestamp > 10:
+                break
 
     finally:
         GPIO.cleanup()
@@ -91,7 +92,7 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
         GPIO.add_event_detect(27, GPIO.FALLING, callback=quit, bouncetime=300)
 
         time.sleep(10)
-        #done_semaphore.acquire()
+        # done_semaphore.acquire()
     finally:
         GPIO.cleanup()
 
