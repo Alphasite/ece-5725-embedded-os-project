@@ -3,7 +3,12 @@ echo #########################
 echo RUNNING mplayer in BG!
 echo #########################
 
-sudo SDL_VIDEODRIVER=fbcon SDL_FBDEV=/dev/fb1 mplayer -input file=/home/pi/fifos/video_fifo -v sdl -framedrop /home/pi/bigbuckbunny320p.mp4 &
+sudo SDL_VIDEODRIVER=fbcon SDL_FBDEV=/dev/fb1 mplayer \
+    -input file=/home/pi/fifos/video_fifo \
+    -framedrop /home/pi/bigbuckbunny320p.mp4 \
+    -v sdl \
+    >log $0.log \
+    &
 
 echo #########################
 echo RUNNING python in FG!
