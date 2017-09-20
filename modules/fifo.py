@@ -1,7 +1,7 @@
 import logging
 import os
 import time
-
+import sys
 
 def exit(settings, **kwargs) -> bool:
     return passthrough(settings, command="quit")
@@ -107,6 +107,7 @@ def gpio_handler(settings, **kwargs) -> bool:
             if not GPIO.input(27):
                 passthrough(settings, command="quit")
                 print("Quit Button Pressed.")
+                sys.exit()
 
             time.sleep(0.2)
     finally:
