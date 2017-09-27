@@ -20,7 +20,7 @@ black = 0, 0, 0
 WHITE = 255, 255, 255
 
 screen_size = 320, 240
-target_framerate = 60
+target_framerate = 30
 
 point = Tuple[int, int]
 
@@ -80,6 +80,7 @@ def setup_for_pi():
     os.putenv('SDL_FBDEV', '/dev/fb1')
     os.putenv('SDL_MOUSEDRV', 'TSLIB')  # Track mouse clicks on piTFT
     os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
+    # pygame.mouse.set_visible(False)
 
 
 def gpio_handler_6_button(settings, **kwargs) -> bool:
@@ -254,6 +255,64 @@ def ball_2_collide(settings, **kwargs):
         pygame.display.flip()
 
 
+def ball_2_collide_quit(settings, **kwargs):
+    if running_on_pi:
+        setup_for_pi()
+
+    pygame.init()
+
+    screen = pygame.display.set_mode(screen_size)
+
+    ball1 = Ball("resources/lab2/ball.png", [120, 120], [50, 50])
+    ball2 = Ball("resources/lab2/tennis_ball.png", [180, 120], [30, 30])
+
+    ball2.rect = ball2.rect.move([screen_size[0] / 2, screen_size[1] / 2])
+
+    clock = Clock()
+
+    done = False
+
+    def exit_loop():
+        nonlocal done
+        done = True
+
+    button = Button((250, 180), "quit", exit_loop)
+
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: sys.exit()
+
+        frame_time_ms = clock.tick(target_framerate)
+        frame_time_s = frame_time_ms / 1000
+
+        if ball1.rect.colliderect(ball2.rect):
+            ball1.velocity[0] *= random.uniform(-1.25, -0.75)
+            ball1.velocity[1] *= random.uniform(-1.25, -0.75)
+
+            ball2.velocity[0] *= random.uniform(-1.25, -0.75)
+            ball2.velocity[1] *= random.uniform(-1.25, -0.75)
+
+        for event in pygame.event.get():
+            if event.type is pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+            elif event.type is pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+            else:
+                print("unknown event:", event.type)
+                continue
+
+            button.interact(pos)
+
+        screen.fill(black)
+        ball1.update(screen, frame_time_s)
+        ball2.update(screen, frame_time_s)
+        button.update(screen, frame_time_s)
+        pygame.display.flip()
+
+
+
+
+
 
 MODULE = {
     "six_button": gpio_handler_6_button,
@@ -261,4 +320,5 @@ MODULE = {
     "ball_1": ball_1,
     "ball_2": ball_2,
     "ball_2_collide": ball_2_collide,
+    "quit_button": ball_2_collide_quit,
 }
