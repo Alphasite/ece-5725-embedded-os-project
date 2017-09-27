@@ -24,6 +24,7 @@ target_framerate = 30
 
 point = Tuple[int, int]
 
+
 class Ball:
     def __init__(
             self,
@@ -70,7 +71,7 @@ class Ball:
 
 class Button:
     def __init__(self, center: point, text: str, action: callable):
-        self.font = my_font = pygame.font.Font(None, 50)
+        self.font = my_font = pygame.font.Font(None, 25)
         self.center = center
         self.text = center
         self.action = action
@@ -312,6 +313,7 @@ def ball_2_collide_quit(settings, **kwargs):
 
     return True
 
+
 def ball_2_collide_quit_start(settings, **kwargs):
     if running_on_pi:
         setup_for_pi()
@@ -338,8 +340,18 @@ def ball_2_collide_quit_start(settings, **kwargs):
         nonlocal go
         go = True
 
+    def speedup_loop():
+        ball1.playback_speed_multiplier = 1.25 * ball1.playback_speed_multiplier
+        ball2.playback_speed_multiplier = 1.25 * ball2.playback_speed_multiplier
+
+    def slowdown_loop():
+        ball1.playback_speed_multiplier = 0.75 * ball1.playback_speed_multiplier
+        ball2.playback_speed_multiplier = 0.75 * ball2.playback_speed_multiplier
+
     button_quit = Button((250, 180), "quit", exit_loop)
     button_start = Button((70, 180), "start", start_loop)
+    button_fast = Button((130, 180), "fast", speedup_loop)
+    button_slow = Button((130, 180), "slow", slowdown_loop)
 
     while not done:
         for event in pygame.event.get():
@@ -357,13 +369,13 @@ def ball_2_collide_quit_start(settings, **kwargs):
 
             button_quit.interact(pos)
             button_start.interact(pos)
+            button_fast.interact(pos)
+            button_slow.interact(pos)
 
         frame_time_ms = clock.tick(target_framerate)
         frame_time_s = frame_time_ms / 1000
 
         ball1.collide_ball(ball2)
-
-
 
         screen.fill(black)
         if go:
