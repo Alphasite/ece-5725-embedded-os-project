@@ -30,9 +30,11 @@ class Ball:
             path: str,
             velocity: List[float],
             dimensions: Optional[List[int]] = None,
+            playback_speed_multiplier: float = 1.0,
     ):
 
         self.velocity = velocity
+        self.playback_speed_multiplier = playback_speed_multiplier
 
         self.texture = pygame.image.load(path)
 
@@ -50,12 +52,20 @@ class Ball:
         if self.rect.top < 0 or self.rect.bottom > height:
             self.velocity[1] = -self.velocity[1]
 
-        delta_v_x = time_delta * self.velocity[0]
-        delta_v_y = time_delta * self.velocity[1]
+        delta_v_x = time_delta * self.velocity[0] * self.playback_speed_multiplier
+        delta_v_y = time_delta * self.velocity[1] * self.playback_speed_multiplier
 
         self.rect = self.rect.move(delta_v_x, delta_v_y)
 
         screen.blit(self.texture, self.rect)
+
+    def collide_ball(self, ball):
+        if self.rect.colliderect(ball.rect):
+            self.velocity[0] *= random.uniform(-1.25, -0.75)
+            self.velocity[1] *= random.uniform(-1.25, -0.75)
+
+            ball.velocity[0] *= random.uniform(-1.25, -0.75)
+            ball.velocity[1] *= random.uniform(-1.25, -0.75)
 
 
 class Button:
@@ -242,12 +252,7 @@ def ball_2_collide(settings, **kwargs):
         frame_time_ms = clock.tick(target_framerate)
         frame_time_s = frame_time_ms / 1000
 
-        if ball1.rect.colliderect(ball2.rect):
-            ball1.velocity[0] *= random.uniform(-1.25, -0.75)
-            ball1.velocity[1] *= random.uniform(-1.25, -0.75)
-
-            ball2.velocity[0] *= random.uniform(-1.25, -0.75)
-            ball2.velocity[1] *= random.uniform(-1.25, -0.75)
+        ball1.collide_ball(ball2)
 
         screen.fill(black)
         ball1.update(screen, frame_time_s)
@@ -285,12 +290,7 @@ def ball_2_collide_quit(settings, **kwargs):
         frame_time_ms = clock.tick(target_framerate)
         frame_time_s = frame_time_ms / 1000
 
-        if ball1.rect.colliderect(ball2.rect):
-            ball1.velocity[0] *= random.uniform(-1.25, -0.75)
-            ball1.velocity[1] *= random.uniform(-1.25, -0.75)
-
-            ball2.velocity[0] *= random.uniform(-1.25, -0.75)
-            ball2.velocity[1] *= random.uniform(-1.25, -0.75)
+        ball1.collide_ball(ball2)
 
         for event in pygame.event.get():
             if event.type is pygame.MOUSEBUTTONDOWN:
@@ -311,10 +311,6 @@ def ball_2_collide_quit(settings, **kwargs):
         pygame.display.flip()
 
     return True
-
-
-
-
 
 
 MODULE = {
