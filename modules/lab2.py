@@ -312,6 +312,70 @@ def ball_2_collide_quit(settings, **kwargs):
 
     return True
 
+def ball_2_collide_quit_start(settings, **kwargs):
+    if running_on_pi:
+        setup_for_pi()
+
+    pygame.init()
+
+    screen = pygame.display.set_mode(screen_size)
+
+    ball1 = Ball("resources/lab2/ball.png", [120, 120], [50, 50])
+    ball2 = Ball("resources/lab2/tennis_ball.png", [180, 120], [30, 30])
+
+    ball2.rect = ball2.rect.move([screen_size[0] / 2, screen_size[1] / 2])
+
+    clock = Clock()
+
+    done = False
+    go = False
+
+    def exit_loop():
+        nonlocal done
+        done = True
+
+    def start_loop():
+        nonlocal go
+        go = True
+
+    button_quit = Button((250, 180), "quit", exit_loop)
+    button_start = Button((70, 180), "start", start_loop)
+
+    while not done:
+        for event in pygame.event.get():
+
+            if event.type is pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                print("Mouse Down:", event.type, pos)
+            elif event.type is pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                print("Mouse Up:", event.type, pos)
+            elif event.type == pygame.QUIT:
+                sys.exit()
+            else:
+                continue
+
+            button_quit.interact(pos)
+            button_start.interact(pos)
+
+        frame_time_ms = clock.tick(target_framerate)
+        frame_time_s = frame_time_ms / 1000
+
+        ball1.collide_ball(ball2)
+
+
+
+        screen.fill(black)
+        if go:
+            ball1.update(screen, frame_time_s)
+            ball2.update(screen, frame_time_s)
+
+        button_quit.update(screen, frame_time_s)
+        button_start.update(screen, frame_time_s)
+        pygame.display.flip()
+
+    return True
+
 
 MODULE = {
     "six_button": gpio_handler_6_button,
@@ -320,4 +384,5 @@ MODULE = {
     "ball_2": ball_2,
     "ball_2_collide": ball_2_collide,
     "quit_button": ball_2_collide_quit,
+    "quit_start_button": ball_2_collide_quit_start,
 }
