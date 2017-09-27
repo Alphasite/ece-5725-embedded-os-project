@@ -295,10 +295,11 @@ def ball_2_collide_quit(settings, **kwargs):
         for event in pygame.event.get():
             if event.type is pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
+                print("Mouse Down:", event.type, pos)
             elif event.type is pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
+                print("Mouse Up:", event.type, pos)
             else:
-                print("unknown event:", event.type)
                 continue
 
             button.interact(pos)
@@ -308,6 +309,8 @@ def ball_2_collide_quit(settings, **kwargs):
         ball2.update(screen, frame_time_s)
         button.update(screen, frame_time_s)
         pygame.display.flip()
+
+    return True
 
 
 
