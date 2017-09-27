@@ -42,9 +42,6 @@ class Ball:
         self.rect = self.texture.get_rect()
 
     def update(self, screen, time_delta: float):
-        delta_v_x = time_delta * self.velocity[0]
-        delta_v_y = time_delta * self.velocity[1]
-
         width, height = screen.get_size()
 
         if self.rect.left < 0 or self.rect.right > width:
@@ -52,6 +49,9 @@ class Ball:
 
         if self.rect.top < 0 or self.rect.bottom > height:
             self.velocity[1] = -self.velocity[1]
+
+        delta_v_x = time_delta * self.velocity[0]
+        delta_v_y = time_delta * self.velocity[1]
 
         self.rect = self.rect.move(delta_v_x, delta_v_y)
 
@@ -241,17 +241,18 @@ def ball_2_collide(settings, **kwargs):
         frame_time_ms = clock.tick(target_framerate)
         frame_time_s = frame_time_ms / 1000
 
+        if ball1.rect.colliderect(ball2.rect):
+            ball1.velocity[0] *= random.uniform(-1.25, -0.75)
+            ball1.velocity[1] *= random.uniform(-1.25, -0.75)
+
+            ball2.velocity[0] *= random.uniform(-1.25, -0.75)
+            ball2.velocity[1] *= random.uniform(-1.25, -0.75)
+
         screen.fill(black)
         ball1.update(screen, frame_time_s)
         ball2.update(screen, frame_time_s)
         pygame.display.flip()
 
-        if ball1.rect.colliderect(ball2.rect):
-            ball1.velocity[0] *= -1
-            ball1.velocity[1] *= -1
-
-            ball2.velocity[0] *= random.uniform(-1.5, -0.5)
-            ball2.velocity[1] *= random.uniform(-1.5, -0.5)
 
 
 MODULE = {
