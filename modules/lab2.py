@@ -351,7 +351,7 @@ def ball_2_collide_quit_start(settings, **kwargs):
     button_quit = Button((250, 210), "quit", exit_loop)
     button_start = Button((70, 210), "start", start_loop)
     button_fast = Button((130, 210), "fast", speedup_loop)
-    button_slow = Button((130, 210), "slow", slowdown_loop)
+    button_slow = Button((190, 210), "slow", slowdown_loop)
 
     while not done:
         for event in pygame.event.get():
