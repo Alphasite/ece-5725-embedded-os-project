@@ -45,7 +45,6 @@ class Ball:
         delta_v_x = time_delta * self.velocity[0]
         delta_v_y = time_delta * self.velocity[1]
 
-        self.rect = self.rect.move(delta_v_x, delta_v_y)
         width, height = screen.get_size()
 
         if self.rect.left < 0 or self.rect.right > width:
@@ -53,6 +52,8 @@ class Ball:
 
         if self.rect.top < 0 or self.rect.bottom > height:
             self.velocity[1] = -self.velocity[1]
+
+        self.rect = self.rect.move(delta_v_x, delta_v_y)
 
         screen.blit(self.texture, self.rect)
 
