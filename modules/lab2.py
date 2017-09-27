@@ -1,15 +1,84 @@
+import random
 import sys
 import os
 import threading
 import time
+from typing import Tuple, Optional, List
 
 import pygame
+from pygame.time import Clock
 
 from modules.fifo import passthrough
 
 timestamp = time.time()
 
 done_semaphore = threading.Semaphore(0)
+
+running_on_pi = True if os.getenv("DEBUG") is None else False
+
+black = 0, 0, 0
+WHITE = 255, 255, 255
+
+screen_size = 320, 240
+target_framerate = 60
+
+point = Tuple[int, int]
+
+class Ball:
+    def __init__(
+            self,
+            path: str,
+            velocity: List[float],
+            dimensions: Optional[List[int]] = None,
+    ):
+
+        self.velocity = velocity
+
+        self.texture = pygame.image.load(path)
+
+        if dimensions is not None:
+            self.texture = pygame.transform.scale(self.texture, dimensions)
+
+        self.rect = self.texture.get_rect()
+
+    def update(self, screen, time_delta: float):
+        delta_v_x = time_delta * self.velocity[0]
+        delta_v_y = time_delta * self.velocity[1]
+
+        self.rect = self.rect.move(delta_v_x, delta_v_y)
+        width, height = screen.get_size()
+
+        if self.rect.left < 0 or self.rect.right > width:
+            self.velocity[0] = -self.velocity[0]
+
+        if self.rect.top < 0 or self.rect.bottom > height:
+            self.velocity[1] = -self.velocity[1]
+
+        screen.blit(self.texture, self.rect)
+
+
+class Button:
+    def __init__(self, center: point, text: str, action: callable):
+        self.font = my_font = pygame.font.Font(None, 50)
+        self.center = center
+        self.text = center
+        self.action = action
+        self.surface = my_font.render(text, True, WHITE)
+        self.rect = self.surface.get_rect(center=center)
+
+    def update(self, screen, time_delta: float):
+        screen.blit(self.surface, self.rect)
+
+    def interact(self, interact_point: point):
+        if self.rect.collidepoint(interact_point):
+            self.action()
+
+
+def setup_for_pi():
+    os.putenv('SDL_VIDEODRIVER', 'fbcon')  # Display on piTFT
+    os.putenv('SDL_FBDEV', '/dev/fb1')
+    os.putenv('SDL_MOUSEDRV', 'TSLIB')  # Track mouse clicks on piTFT
+    os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
 
 
 def gpio_handler_6_button(settings, **kwargs) -> bool:
@@ -100,125 +169,88 @@ def gpio_handler_6_button_interrupt(settings, **kwargs) -> bool:
 
 
 def ball_1(settings, **kwargs):
-    os.putenv('SDL_FBDEV', '/dev/fb1')
+    if running_on_pi:
+        setup_for_pi()
 
     pygame.init()
 
-    size = width, height = 320, 240
-    speed = [2, 2]
-    black = 0, 0, 0
+    screen = pygame.display.set_mode(screen_size)
 
-    screen = pygame.display.set_mode(size)
+    ball1 = Ball("resources/lab2/ball.png", [120, 120], [50, 50])
 
-    ball = pygame.image.load("resources/lab2/ball.png")
-    ball = pygame.transform.scale(ball, (50, 50))
-    ballrect = ball.get_rect()
+    clock = Clock()
 
     while 1:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
 
-        ballrect = ballrect.move(speed)
-        if ballrect.left < 0 or ballrect.right > width:
-            speed[0] = -speed[0]
-        if ballrect.top < 0 or ballrect.bottom > height:
-            speed[1] = -speed[1]
+        frame_time_ms = clock.tick(target_framerate)
+        frame_time_s = frame_time_ms / 1000
 
         screen.fill(black)
-        screen.blit(ball, ballrect)
+        ball1.update(screen, frame_time_s)
         pygame.display.flip()
 
 
 def ball_2(settings, **kwargs):
-    os.putenv('SDL_FBDEV', '/dev/fb1')
+    if running_on_pi:
+        setup_for_pi()
 
     pygame.init()
 
-    size = width, height = 320, 240
-    speed = [2, 2]
-    speed2 = [3, 2]
-    black = 0, 0, 0
+    screen = pygame.display.set_mode(screen_size)
 
-    screen = pygame.display.set_mode(size)
+    ball1 = Ball("resources/lab2/ball.png", [120, 120], [50, 50])
+    ball2 = Ball("resources/lab2/tennis_ball.png", [180, 120], [30, 30])
 
-    ball = pygame.image.load("resources/lab2/ball.png")
-    ball = pygame.transform.scale(ball, (50, 50))
-    ballrect = ball.get_rect()
+    clock = Clock()
 
-    ball2 = pygame.image.load("resources/lab2/tennis_ball.png")
-    ball2 = pygame.transform.scale(ball2, (30, 30))
-    ballrect2 = ball2.get_rect()
-
-    while 1:
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
 
-        ballrect = ballrect.move(speed)
-        if ballrect.left < 0 or ballrect.right > width:
-            speed[0] = -speed[0]
-        if ballrect.top < 0 or ballrect.bottom > height:
-            speed[1] = -speed[1]
-
-        ballrect2 = ballrect2.move(speed2)
-        if ballrect2.left < 0 or ballrect2.right > width:
-            speed2[0] = -speed2[0]
-        if ballrect2.top < 0 or ballrect2.bottom > height:
-            speed2[1] = -speed2[1]
+        frame_time_ms = clock.tick(target_framerate)
+        frame_time_s = frame_time_ms / 1000
 
         screen.fill(black)
-        screen.blit(ball, ballrect)
-        screen.blit(ball2, ballrect2)
+        ball1.update(screen, frame_time_s)
+        ball2.update(screen, frame_time_s)
         pygame.display.flip()
 
 
 def ball_2_collide(settings, **kwargs):
-    os.putenv('SDL_FBDEV', '/dev/fb1')
+    if running_on_pi:
+        setup_for_pi()
 
     pygame.init()
 
-    size = width, height = 320, 240
-    speed = [2, 2]
-    speed2 = [3, 2]
-    black = 0, 0, 0
+    screen = pygame.display.set_mode(screen_size)
 
-    screen = pygame.display.set_mode(size)
+    ball1 = Ball("resources/lab2/ball.png", [120, 120], [50, 50])
+    ball2 = Ball("resources/lab2/tennis_ball.png", [180, 120], [30, 30])
 
-    ball = pygame.image.load("resources/lab2/ball.png")
-    ball = pygame.transform.scale(ball, (50, 50))
-    ballrect = ball.get_rect()
+    ball2.rect = ball2.rect.move([screen_size[0] / 2, screen_size[1] / 2])
 
-    ball2 = pygame.image.load("resources/lab2/tennis_ball.png")
-    ball2 = pygame.transform.scale(ball2, (30, 30))
-    ballrect2 = ball2.get_rect()
-    ballrect2 = ballrect2.move([width / 2, height / 2])
+    clock = Clock()
 
-    while 1:
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
 
-        ballrect = ballrect.move(speed)
-        if ballrect.left < 0 or ballrect.right > width:
-            speed[0] = -speed[0]
-        if ballrect.top < 0 or ballrect.bottom > height:
-            speed[1] = -speed[1]
-
-        ballrect2 = ballrect2.move(speed2)
-        if ballrect2.left < 0 or ballrect2.right > width:
-            speed2[0] = -speed2[0]
-        if ballrect2.top < 0 or ballrect2.bottom > height:
-            speed2[1] = -speed2[1]
-
-        if ballrect.colliderect(ballrect2):
-            speed[0] *= -1
-            speed[1] *= -1
-
-            speed2[0] *= -1
-            speed2[1] *= -0.8
+        frame_time_ms = clock.tick(target_framerate)
+        frame_time_s = frame_time_ms / 1000
 
         screen.fill(black)
-        screen.blit(ball, ballrect)
-        screen.blit(ball2, ballrect2)
+        ball1.update(screen, frame_time_s)
+        ball2.update(screen, frame_time_s)
         pygame.display.flip()
+
+        if ball1.rect.colliderect(ball2.rect):
+            ball1.velocity[0] *= -1
+            ball1.velocity[1] *= -1
+
+            ball2.velocity[0] *= random.uniform(-1.5, -0.5)
+            ball2.velocity[1] *= random.uniform(-1.5, -0.5)
 
 
 MODULE = {
