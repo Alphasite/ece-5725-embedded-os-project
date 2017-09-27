@@ -348,10 +348,10 @@ def ball_2_collide_quit_start(settings, **kwargs):
         ball1.playback_speed_multiplier = 0.75 * ball1.playback_speed_multiplier
         ball2.playback_speed_multiplier = 0.75 * ball2.playback_speed_multiplier
 
-    button_quit = Button((250, 180), "quit", exit_loop)
-    button_start = Button((70, 180), "start", start_loop)
-    button_fast = Button((130, 180), "fast", speedup_loop)
-    button_slow = Button((130, 180), "slow", slowdown_loop)
+    button_quit = Button((250, 210), "quit", exit_loop)
+    button_start = Button((70, 210), "start", start_loop)
+    button_fast = Button((130, 210), "fast", speedup_loop)
+    button_slow = Button((130, 210), "slow", slowdown_loop)
 
     while not done:
         for event in pygame.event.get():
@@ -384,6 +384,8 @@ def ball_2_collide_quit_start(settings, **kwargs):
 
         button_quit.update(screen, frame_time_s)
         button_start.update(screen, frame_time_s)
+        button_fast.update(screen, frame_time_s)
+        button_slow.update(screen, frame_time_s)
         pygame.display.flip()
 
     return True
