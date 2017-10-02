@@ -24,6 +24,7 @@ target_framerate = 30
 
 point = Tuple[int, int]
 
+
 class Ball:
     def __init__(
             self,
