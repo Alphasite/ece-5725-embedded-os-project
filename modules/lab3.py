@@ -45,7 +45,7 @@ class Label:
     def __init__(self, center: point, text: str, background_colour: Optional[colour] = None, text_size: int = 25):
         self.font = my_font = pygame.font.Font(None, text_size)
         self.center = center
-        self.text = center
+        self.text = text
         self.surface = my_font.render(text, True, WHITE)
         self.rect = self.surface.get_rect(center=center)
         self.background_colour = background_colour
@@ -72,6 +72,8 @@ class ModalButton:
             self.disabled_button = temp_action
 
             self.active_action()
+
+            print("Active button:", self.active_button.label.text)
 
         self.active_button = Button(center, text_1, swap_button, background_colour=red, text_size=text_size)
         self.disabled_button = Button(center, text_2, swap_button, background_colour=green, text_size=text_size)
