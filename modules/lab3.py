@@ -169,13 +169,12 @@ def servo_control_beta(settings, **kwargs):
     servo2.speed = SpeedS2
 
     #Adjustment Code
-    def adjust_pwm_p1(channel):
-        servo1.speed = 0
-        servo2.speed = 0
-        
+    def quit(channel):
         GPIO.cleanup()
+        print("Quit Button Pressed.")
+        done_semaphore.release()
 
-    def adjust_pwm_p2(channel):
+    def stop(channel):
         servo1.speed = 0
         servo2.speed = 0
 
@@ -203,8 +202,8 @@ def servo_control_beta(settings, **kwargs):
         servo2.speed = SpeedS2
         print("Servo 2 Speed [-1.0 to 1.0]: ", SpeedS2)
 
-    GPIO.add_event_detect(17, GPIO.FALLING, callback=adjust_pwm_p1, bouncetime=300)
-    GPIO.add_event_detect(22, GPIO.FALLING, callback=adjust_pwm_p2, bouncetime=300)
+    GPIO.add_event_detect(17, GPIO.FALLING, callback=quit, bouncetime=300)
+    GPIO.add_event_detect(22, GPIO.FALLING, callback=stop, bouncetime=300)
     GPIO.add_event_detect(23, GPIO.FALLING, callback=adjust_freq_p1, bouncetime=300)
     GPIO.add_event_detect(27, GPIO.FALLING, callback=adjust_freq_p2, bouncetime=300)
 
