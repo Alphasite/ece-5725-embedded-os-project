@@ -120,11 +120,11 @@ def pwm_calibrate(settings, **kwargs):
 
         #Supplementary "KILL" Function by holding Buttons 1 & 2
         if GPIO.input(22):
-            p.stop(p1)
-            p.stop(p2)
+            p1.stop(p1)
+            p2.stop(p2)
             print("Servos Stopped")
 
-        p1.ChangeFrquency(p1_freq)
+        p1.ChangeFrequency(p1_freq)
         print("Servo 1 Frequency: ", p1_freq)
 
     def adjust_pwm_p2(channel):
@@ -136,7 +136,7 @@ def pwm_calibrate(settings, **kwargs):
         else:
             p2_freq = p2_freq - 1 #subtract 1Hz from the signal
 
-        p2.ChangeFrquency(p2_freq)
+        p2.ChangeFrequency(p2_freq)
         print("Servo 2 Frequency: ", p2_freq)
 
     def adjust_freq_p1(channel):
@@ -148,7 +148,7 @@ def pwm_calibrate(settings, **kwargs):
         else:
             p1_freq = p1_freq - 0.1 #subtract 0.1% from the signal
 
-        p1.ChangeFrquency(p1_freq)
+        p1.ChangeDutyCycle(p1_freq)
         print("Servo 1 Duty Cycle: ", p1_pwm)
 
     def adjust_freq_p2(channel):
@@ -160,7 +160,7 @@ def pwm_calibrate(settings, **kwargs):
         else:
             p2_freq = p2_freq - 0.1 #subtract 1Hz from the signal
 
-        p1.ChangeFrquency(p1_freq)
+        p2.ChangeDutyCycle(p1_freq)
         print("Servo 2 Duty Cycle: ", p2_pwm)
 
     GPIO.add_event_detect(17, GPIO.FALLING, callback=adjust_pwm_p1, bouncetime=300)
