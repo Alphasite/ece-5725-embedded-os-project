@@ -66,6 +66,8 @@ def blink(settings, **kwargs):
     p1.start(50) #50% Duty Cycle
     p2.start(50) #50% Duty Cycle
 
+    while True:
+        time.sleep(2)
 
     return True
 
@@ -120,6 +122,7 @@ def pwm_calibrate(settings, **kwargs):
         if GPIO.INPUT(22):
             p.stop(p1)
             p.stop(p2)
+            print("Servos Stopped")
 
         p1.ChangeFrquency(p1_freq)
         print("Servo 1 Frequency: ", p1_freq)
