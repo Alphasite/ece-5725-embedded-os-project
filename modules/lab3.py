@@ -40,6 +40,42 @@ class Button:
             self.action()
 
 
+class Servo:
+    zero_pulse_width = 1.5
+    maximum_pulse_width_range = 0.2
+
+    def __init__(self, servo_pin) -> None:
+        self.pulse_width = Servo.zero_pulse_width
+
+        GPIO.setup(servo_pin, GPIO.OUT, initial=GPIO.LOW)
+        self.pwm = GPIO.PWM(26, self.frequency)
+        self.pwm.start(self.duty_cycle)
+
+    def set_pwm(self):
+        self.pwm.ChangeFrequency(self.frequency)
+        self.pwm.ChangeDutyCycle(self.duty_cycle)
+
+    @property
+    def speed(self):
+        return (self.pulse_width - Servo.zero_pulse_width) / Servo.maximum_pulse_width_range
+
+    @speed.setter
+    def speed(self, value):
+        self.pulse_width = value * Servo.maximum_pulse_width_range + Servo.zero_pulse_width
+
+    @property
+    def period(self):
+        """The millisecond period of the pwm signal"""
+        return 20 + self.pulse_width
+
+    @property
+    def frequency(self):
+        return 1 / (self.period * 1000)
+
+    @property
+    def duty_cycle(self):
+        return self.pulse_width / self.period
+
 def setup_for_pi():
     os.putenv('SDL_VIDEODRIVER', 'fbcon')  # Display on piTFT
     os.putenv('SDL_FBDEV', '/dev/fb1')
