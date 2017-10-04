@@ -140,25 +140,25 @@ def pwm_calibrate(settings, **kwargs):
         print("Servo 2 Frequency: ", p2_freq)
 
     def adjust_freq_p1(channel):
-        nonlocal p1_freq
+        nonlocal p1_pwm
 
         time.sleep(0.5)
         if GPIO.input(17):
-            p1_freq = p1_freq + 0.1 #add 0.1% to the signal
+            p1_pwm = p1_pwm + 0.1 #add 0.1% to the signal
         else:
-            p1_freq = p1_freq - 0.1 #subtract 0.1% from the signal
+            p1_pwm = p1_pwm - 0.1 #subtract 0.1% from the signal
 
         p1.ChangeDutyCycle(p1_freq)
         print("Servo 1 Duty Cycle: ", p1_pwm)
 
     def adjust_freq_p2(channel):
-        nonlocal p2_freq
+        nonlocal p2_pwm
 
         time.sleep(0.5)
         if GPIO.input(17):
-            p2_freq = p2_freq + 0.1 #add 1Hz to the signal
+            p2_pwm = p2_pwm + 0.1 #add 1Hz to the signal
         else:
-            p2_freq = p2_freq - 0.1 #subtract 1Hz from the signal
+            p2_pwm = p2_pwm - 0.1 #subtract 1Hz from the signal
 
         p2.ChangeDutyCycle(p1_freq)
         print("Servo 2 Duty Cycle: ", p2_pwm)
