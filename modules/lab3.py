@@ -71,7 +71,7 @@ class Servo:
 
     @property
     def frequency(self):
-        return 1 / (self.period * 1000)
+        return 1 / (self.period / 1000)
 
     @property
     def duty_cycle(self):
@@ -125,8 +125,8 @@ def pwm_calibrate(settings, **kwargs):
 
     return True
 
-def servo_control(settings,**kwargs):
 
+def servo_control(settings,**kwargs):
     GPIO.setmode(GPIO.BCM)
 
     servo1 = Servo(26)
