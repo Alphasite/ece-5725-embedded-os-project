@@ -129,19 +129,31 @@ def pwm_calibrate(settings, **kwargs):
 def servo_control(settings,**kwargs):
     GPIO.setmode(GPIO.BCM)
 
+    #Initialize Servos
     servo1 = Servo(19)
     servo2 = Servo(26)
-
     servo1.speed = 0
     servo2.speed = 0
 
-    time.sleep(5)
+    #Begin Sequence
+    print("Servo Speed Sequence Initialized.")
+    time.sleep(2)
 
-    servo1.speed = 0.5
-    servo2.speed = -0.5
+    for i in range(0,-11, -1):
+        servo1.speed = i/10
+        servo2.speed = i/10
+        print("Servo Speed Set to:", i/10)
+        time.sleep(3)
 
-    time.sleep(5)
+    for i in range(0, 11, 1):
+        servo1.speed = i/10
+        servo2.speed = i/10
+        print("Servo Speed Set to:", i/10)
+        time.sleep(3)
 
+    servo1.speed = 0
+    servo2.speed = 0
+    print("Sequence complete. Servos stopped.")
     return True
 
 def servo_control_beta(settings, **kwargs):
