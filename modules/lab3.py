@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import random
 import sys
 import os
@@ -359,23 +361,36 @@ def rolling_control(settings, **kwargs):
     servo_1 = Servo(19)
     servo_2 = Servo(26)
 
+    servo_1.history = [("Stop", 0), ("Stop", 0), ("Stop", 0)]
+    servo_2.history = [("Stop", 0), ("Stop", 0), ("Stop", 0)]
+
+    def push_history(servo: Servo, label: str):
+        time = datetime.now().strftime('%H:%M:%S')
+        servo.history = servo.history[0:2] + [(label, time)]
+
     def servo_1_counter_clockwise():
         servo_1.speed = 1.0
+        push_history(servo_1, "CW")
 
     def servo_1_clockwise():
         servo_1.speed = -1.0
+        push_history(servo_1, "CCW")
 
     def servo_1_zero():
         servo_1.speed = 0.0
+        push_history(servo_1, "STOP")
 
     def servo_2_counter_clockwise():
         servo_2.speed = 1.0
+        push_history(servo_2, "CW")
 
     def servo_2_clockwise():
         servo_2.speed = -1.0
+        push_history(servo_2, "CCW")
 
     def servo_2_zero():
         servo_2.speed = 0.0
+        push_history(servo_2, "STOP")
 
     buttons.append(ModalButton((160, 120), "STOP", "Resume", stop, resume))
     buttons.append(Button((160, 200), "Quit", exit_loop, text_size=15))
