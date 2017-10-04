@@ -67,9 +67,9 @@ class ModalButton:
             self.active_button = self.disabled_button
             self.disabled_button = temp_button
 
-            temp_action = self.active_button
-            self.active_button = self.disabled_button
-            self.disabled_button = temp_action
+            temp_action = self.active_action
+            self.active_action = self.disabled_action
+            self.disabled_action = temp_action
 
             self.active_action()
 
