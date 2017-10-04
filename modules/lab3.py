@@ -124,7 +124,22 @@ def pwm_calibrate(settings, **kwargs):
 
     return True
 
-def servo_control(settings, **kwargs):
+def servo_control(settings,**kwargs):
+
+    servo1 = Servo[26]
+    servo2 = Servo[19]
+
+    servo1.speed = 0
+    servo2.speed = 0
+    
+    time.sleep(5)
+
+    servo1.speed = 0.5
+    servo2.speed = -0.5
+
+    return True
+
+def servo_control_beta(settings, **kwargs):
 
     done_semaphore = threading.Semaphore(0)
 
@@ -294,6 +309,7 @@ def rolling_control(settings, **kwargs):
 MODULE = {
     "blink": blink,
     "pwm_calibrate": pwm_calibrate,
+    "servo_control_beta": servo_control_beta,
     "servo_control": servo_control,
     "two_wheel": two_wheel,
     "rolling_control": rolling_control,
