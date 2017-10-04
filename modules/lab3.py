@@ -80,8 +80,8 @@ def pwm_calibrate(settings, **kwargs):
     p2 = GPIO.PWM(19, 46.5)  # 0.020ms between pulses
 
     # Start PWM
-    p1.start(7)  # 7.5% Duty Cycle [1.5mS signal]
-    p2.start(7)  # 7.5% Duty Cycle [1.5mS signal]
+    p1.start(7)  # 7% Duty Cycle [1.5mS signal]
+    p2.start(7)  # 7% Duty Cycle [1.5mS signal]
 
     while True:
         time.sleep(0.2)
@@ -93,10 +93,10 @@ def servo_control(settings, **kwargs):
     done_semaphore = threading.Semaphore(0)
 
     #Default Frequency/PWM Settings
-    p1_freq = 1
-    p2_freq = 2
-    p1_pwm = 7.5
-    p2_pwm = 7.5
+    p1_freq = 46.5
+    p2_freq = 46.5
+    p1_pwm = 7
+    p2_pwm = 7
 
     # Set up TFT Buttons as Inputs, GPIO Pins 26, 19 as Outputs
     GPIO.setmode(GPIO.BCM)
