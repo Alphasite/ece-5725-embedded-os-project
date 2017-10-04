@@ -22,22 +22,64 @@ screen_size = 320, 240
 target_framerate = 30
 
 point = Tuple[int, int]
+colour = Tuple[int, int, int]
+
+red = (165, 0, 0)
+green = (0, 165, 0)
 
 class Button:
-    def __init__(self, center: point, text: str, action: callable):
+    def __init__(self, center: point, text: str, action: callable, background_colour: Optional[colour] = None):
+        self.action = action
+        self.label = Label(center, text, background_colour)
+
+    def update(self, screen, time_delta: float):
+        self.label.update(screen, time_delta)
+
+    def interact(self, interact_point: point):
+        if self.label.rect.collidepoint(interact_point):
+            self.action()
+
+
+class Label:
+    def __init__(self, center: point, text: str, background_colour: Optional[colour] = None):
         self.font = my_font = pygame.font.Font(None, 25)
         self.center = center
         self.text = center
-        self.action = action
         self.surface = my_font.render(text, True, WHITE)
         self.rect = self.surface.get_rect(center=center)
+        self.background_colour = background_colour
 
     def update(self, screen, time_delta: float):
+        if self.background_colour is not None:
+            pygame.draw.rect(screen, self.background_colour, self.rect)
+
         screen.blit(self.surface, self.rect)
 
+
+class ModalButton:
+    def __init__(self, center: point, text_1: str, text_2: str, action_1: callable, action_2: callable):
+        self.active_action = action_1
+        self.disabled_action = action_2
+
+        def swap_button():
+            temp_button = self.active_button
+            self.active_button = self.disabled_button
+            self.disabled_button = temp_button
+
+            temp_action = self.active_button
+            self.active_button = self.disabled_button
+            self.disabled_button = temp_action
+
+            self.active_action()
+
+        self.active_button = Button(center, text_1, swap_button, red)
+        self.disabled_button = Button(center, text_2, swap_button, green)
+
+    def update(self, screen, time_delta: float):
+        self.active_button.update(screen, time_delta)
+
     def interact(self, interact_point: point):
-        if self.rect.collidepoint(interact_point):
-            self.action()
+        self.active_button.interact(interact_point)
 
 
 class Servo:
@@ -49,11 +91,17 @@ class Servo:
 
         GPIO.setup(servo_pin, GPIO.OUT, initial=GPIO.LOW)
         self.pwm = GPIO.PWM(servo_pin, self.frequency)
-        self.pwm.start(self.duty_cycle)
+        self.start()
 
     def set_pwm(self):
         self.pwm.ChangeFrequency(self.frequency)
         self.pwm.ChangeDutyCycle(self.duty_cycle)
+
+    def stop(self):
+        self.pwm.stop()
+
+    def start(self):
+        self.pwm.start(self.duty_cycle)
 
     @property
     def speed(self):
@@ -76,6 +124,7 @@ class Servo:
     @property
     def duty_cycle(self):
         return (self.pulse_width / self.period) * 100
+
 
 def setup_for_pi():
     os.putenv('SDL_VIDEODRIVER', 'fbcon')  # Display on piTFT
@@ -270,13 +319,6 @@ def rolling_control(settings, **kwargs):
 
     screen = pygame.display.set_mode(screen_size)
 
-    ball1 = Ball("resources/lab2/ball.png", [120, 120], [50, 50])
-    ball2 = Ball("resources/lab2/tennis_ball.png", [180, 120], [30, 30])
-
-    ball2.rect = ball2.rect.move([screen_size[0] / 2, screen_size[1] / 2])
-
-    clock = Clock()
-
     done = False
     go = False
 
@@ -284,22 +326,47 @@ def rolling_control(settings, **kwargs):
         nonlocal done
         done = True
 
-    def start_loop():
-        nonlocal go
-        go = True
+    def resume():
+        servo_1.start()
+        servo_2.start()
 
-    def speedup_loop():
-        ball1.playback_speed_multiplier = 1.25 * ball1.playback_speed_multiplier
-        ball2.playback_speed_multiplier = 1.25 * ball2.playback_speed_multiplier
+    def stop():
+        servo_1.stop()
+        servo_2.stop()
 
-    def slowdown_loop():
-        ball1.playback_speed_multiplier = 0.75 * ball1.playback_speed_multiplier
-        ball2.playback_speed_multiplier = 0.75 * ball2.playback_speed_multiplier
+    buttons = []
 
-    button_quit = Button((250, 210), "quit", exit_loop)
-    button_start = Button((70, 210), "start", start_loop)
-    button_fast = Button((130, 210), "fast", speedup_loop)
-    button_slow = Button((190, 210), "slow", slowdown_loop)
+    servo_1 = Servo(19)
+    servo_2 = Servo(26)
+
+    def servo_1_counter_clockwise(channel):
+        servo_1.speed = 1.0
+
+    def servo_1_clockwise(channel):
+        servo_1.speed = -1.0
+
+    def servo_1_zero(channel):
+        servo_1.speed = 0.0
+
+    def servo_2_counter_clockwise(channel):
+        servo_2.speed = 1.0
+
+    def servo_2_clockwise(channel):
+        servo_2.speed = -1.0
+
+    def servo_2_zero(channel):
+        servo_2.speed = 0.0
+
+    buttons.append(ModalButton((160, 120), "STOP", "Resume", stop, resume))
+    buttons.append(Button((160, 200), "Quit", exit_loop))
+    buttons.append(Button(( 40, 200), "S1 +", servo_1_clockwise))
+    buttons.append(Button(( 80, 200), "S1 0", servo_1_zero))
+    buttons.append(Button((120, 200), "S1 -", servo_1_counter_clockwise))
+    buttons.append(Button((200, 200), "S2 +", servo_1_clockwise))
+    buttons.append(Button((240, 200), "S2 0", servo_1_zero))
+    buttons.append(Button((280, 200), "S2 -", servo_1_counter_clockwise))
+
+    clock = Clock()
 
     while not done:
         for event in pygame.event.get():
@@ -315,25 +382,17 @@ def rolling_control(settings, **kwargs):
             else:
                 continue
 
-            button_quit.interact(pos)
-            button_start.interact(pos)
-            button_fast.interact(pos)
-            button_slow.interact(pos)
+            for button in buttons:
+                button.interact(pos)
 
         frame_time_ms = clock.tick(target_framerate)
         frame_time_s = frame_time_ms / 1000
 
-        ball1.collide_ball(ball2)
-
         screen.fill(black)
-        if go:
-            ball1.update(screen, frame_time_s)
-            ball2.update(screen, frame_time_s)
 
-        button_quit.update(screen, frame_time_s)
-        button_start.update(screen, frame_time_s)
-        button_fast.update(screen, frame_time_s)
-        button_slow.update(screen, frame_time_s)
+        for button in buttons:
+            button.update(screen, frame_time_s)
+
         pygame.display.flip()
 
     return True
