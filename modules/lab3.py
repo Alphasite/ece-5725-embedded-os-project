@@ -126,6 +126,8 @@ def pwm_calibrate(settings, **kwargs):
 
 def servo_control(settings,**kwargs):
 
+    GPIO.setmode(GPIO.BCM)
+
     servo1 = Servo(26)
     servo2 = Servo(19)
 
