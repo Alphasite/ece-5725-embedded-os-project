@@ -138,13 +138,14 @@ def servo_control(settings,**kwargs):
     #Begin Sequence
     print("Servo Speed Sequence Initialized.")
     time.sleep(2)
-    for i in range(0, 10, 1):
+    
+    for i in range(0,-10, -1):
         servo1.speed = i/10
         servo2.speed = i/10
         print("Servo Speed Set to:", i/10)
         time.sleep(3)
 
-    for i in range(0,-10, -1):
+    for i in range(0, 10, 1):
         servo1.speed = i/10
         servo2.speed = i/10
         print("Servo Speed Set to:", i/10)
