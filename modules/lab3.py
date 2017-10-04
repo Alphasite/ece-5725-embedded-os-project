@@ -27,10 +27,11 @@ colour = Tuple[int, int, int]
 red = (165, 0, 0)
 green = (0, 165, 0)
 
+
 class Button:
-    def __init__(self, center: point, text: str, action: callable, background_colour: Optional[colour] = None):
+    def __init__(self, center: point, text: str, action: callable, background_colour: Optional[colour] = None, text_size: int = 25):
         self.action = action
-        self.label = Label(center, text, background_colour)
+        self.label = Label(center, text, background_colour, text_size=text_size)
 
     def update(self, screen, time_delta: float):
         self.label.update(screen, time_delta)
@@ -41,8 +42,8 @@ class Button:
 
 
 class Label:
-    def __init__(self, center: point, text: str, background_colour: Optional[colour] = None):
-        self.font = my_font = pygame.font.Font(None, 25)
+    def __init__(self, center: point, text: str, background_colour: Optional[colour] = None, text_size: int = 25):
+        self.font = my_font = pygame.font.Font(None, text_size)
         self.center = center
         self.text = center
         self.surface = my_font.render(text, True, WHITE)
@@ -57,7 +58,7 @@ class Label:
 
 
 class ModalButton:
-    def __init__(self, center: point, text_1: str, text_2: str, action_1: callable, action_2: callable):
+    def __init__(self, center: point, text_1: str, text_2: str, action_1: callable, action_2: callable, text_size: int = 25):
         self.active_action = action_1
         self.disabled_action = action_2
 
@@ -72,8 +73,8 @@ class ModalButton:
 
             self.active_action()
 
-        self.active_button = Button(center, text_1, swap_button, red)
-        self.disabled_button = Button(center, text_2, swap_button, green)
+        self.active_button = Button(center, text_1, swap_button, background_colour=red, text_size=text_size)
+        self.disabled_button = Button(center, text_2, swap_button, background_colour=green, text_size=text_size)
 
     def update(self, screen, time_delta: float):
         self.active_button.update(screen, time_delta)
@@ -375,13 +376,13 @@ def rolling_control(settings, **kwargs):
         servo_2.speed = 0.0
 
     buttons.append(ModalButton((160, 120), "STOP", "Resume", stop, resume))
-    buttons.append(Button((160, 200), "Quit", exit_loop))
-    buttons.append(Button(( 40, 200), "S1 +", servo_1_clockwise))
-    buttons.append(Button(( 80, 200), "S1 0", servo_1_zero))
-    buttons.append(Button((120, 200), "S1 -", servo_1_counter_clockwise))
-    buttons.append(Button((200, 200), "S2 +", servo_1_clockwise))
-    buttons.append(Button((240, 200), "S2 0", servo_1_zero))
-    buttons.append(Button((280, 200), "S2 -", servo_1_counter_clockwise))
+    buttons.append(Button((160, 200), "Quit", exit_loop, text_size=15))
+    buttons.append(Button(( 40, 200), " S1 + ", servo_1_clockwise, text_size=15))
+    buttons.append(Button(( 80, 200), " S1 0 ", servo_1_zero, text_size=15))
+    buttons.append(Button((120, 200), " S1 - ", servo_1_counter_clockwise, text_size=15))
+    buttons.append(Button((200, 200), " S2 + ", servo_2_clockwise, text_size=15))
+    buttons.append(Button((240, 200), " S2 0 ", servo_2_zero, text_size=15))
+    buttons.append(Button((280, 200), " S2 - ", servo_2_counter_clockwise, text_size=15))
 
     clock = Clock()
 
