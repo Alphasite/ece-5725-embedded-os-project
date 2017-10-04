@@ -76,12 +76,12 @@ def pwm_calibrate(settings, **kwargs):
     GPIO.setup([26, 19], GPIO.OUT, initial=GPIO.LOW)
 
     # Create PWM Instances
-    p1 = GPIO.PWM(26, 50)  # 0.020ms between pulses
-    p2 = GPIO.PWM(19, 50)  # 0.020ms between pulses
+    p1 = GPIO.PWM(26, 46.5)  # 0.020ms between pulses
+    p2 = GPIO.PWM(19, 46.5)  # 0.020ms between pulses
 
     # Start PWM
-    p1.start(7.5)  # 7.5% Duty Cycle [1.5mS signal]
-    p2.start(7.5)  # 7.5% Duty Cycle [1.5mS signal]
+    p1.start(7)  # 7.5% Duty Cycle [1.5mS signal]
+    p2.start(7)  # 7.5% Duty Cycle [1.5mS signal]
 
     while True:
         time.sleep(0.2)
