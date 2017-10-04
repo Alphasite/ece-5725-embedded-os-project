@@ -223,6 +223,7 @@ def servo_control_beta(settings, **kwargs):
 
     return True
 
+
 def two_wheel(settings, **kwargs):
     done_semaphore = threading.Semaphore(0)
 
@@ -244,10 +245,12 @@ def two_wheel(settings, **kwargs):
         servo2.speed = 0
 
     def servo_1_increment(channel):
-        servo1.speed = (servo1.speed + 1) % 3
+        servo1.speed = (servo1.speed + 1) % 3 - 1
+        print("Servo 1 speed:", servo1.speed)
 
     def servo_2_increment(channel):
-        servo2.speed = (servo2.speed + 1) % 3
+        servo2.speed = (servo2.speed + 1) % 3 - 1
+        print("Servo 2 speed:", servo2.speed)
 
     GPIO.add_event_detect(17, GPIO.FALLING, callback=quit, bouncetime=300)
     GPIO.add_event_detect(22, GPIO.FALLING, callback=stop, bouncetime=300)
@@ -257,6 +260,7 @@ def two_wheel(settings, **kwargs):
     done_semaphore.acquire()
 
     return True
+
 
 def rolling_control(settings, **kwargs):
     if running_on_pi:
