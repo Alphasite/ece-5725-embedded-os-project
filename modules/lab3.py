@@ -119,7 +119,7 @@ def pwm_calibrate(settings, **kwargs):
             p1_freq = p1_freq - 1 #subtract 1Hz from the signal
 
         #Supplementary "KILL" Function by holding Buttons 1 & 2
-        if GPIO.input(22):
+        if not GPIO.input(22):
             p1.stop(p1)
             p2.stop(p2)
             print("Servos Stopped")
