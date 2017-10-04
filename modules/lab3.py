@@ -253,7 +253,7 @@ def two_wheel(settings, **kwargs):
         time.sleep(1)
         if GPIO.input(23):
             SpeedS1 = 1.0  # add 1Hz to the signal
-            print("Servo 2: Counter-Clockwise Rotation")
+            print("Servo 1: Counter-Clockwise Rotation")
         else:
             SpeedS1 = -1.0  # subtract 1Hz from the signal
             print("Servo 1: Clockwise Rotation")
