@@ -105,23 +105,26 @@ def blink(settings, **kwargs):
 
     return True
 
-def servo_control(settings, **kwargs):
+def pwm_calibrate(settings, **kwargs):
     # Set up TFT Buttons as Inputs, GPIO Pins 26, 19 as Outputs
     GPIO.setmode(GPIO.BCM)
     GPIO.setup([17, 22, 23, 27], GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup([26, 19], GPIO.OUT, initial=GPIO.LOW)
 
     # Create PWM Instances
-    p1 = GPIO.PWM(26, 50)  # 0.020ms between pulses
-    p2 = GPIO.PWM(19, 50)  # 0.020ms between pulses
+    p1 = GPIO.PWM(26, 46.5)  # 0.020ms between pulses
+    p2 = GPIO.PWM(19, 46.5)  # 0.020ms between pulses
 
     # Start PWM
-    p1.start(50)  # 50% Duty Cycle
-    p2.start(50)  # 50% Duty Cycle
+    p1.start(7)  # 7.5% Duty Cycle [1.5mS signal]
+    p2.start(7)  # 7.5% Duty Cycle [1.5mS signal]
+
+    while True:
+        time.sleep(0.2)
 
     return True
 
-def pwm_calibrate(settings, **kwargs):
+def servo_control(settings, **kwargs):
 
     done_semaphore = threading.Semaphore(0)
 
@@ -155,12 +158,12 @@ def pwm_calibrate(settings, **kwargs):
             p1_freq = p1_freq - 1 #subtract 1Hz from the signal
 
         #Supplementary "KILL" Function by holding Buttons 1 & 2
-        if GPIO.input(22):
-            p.stop(p1)
-            p.stop(p2)
+        if not GPIO.input(22):
+            p1.stop(p1)
+            p2.stop(p2)
             print("Servos Stopped")
 
-        p1.ChangeFrquency(p1_freq)
+        p1.ChangeFrequency(p1_freq)
         print("Servo 1 Frequency: ", p1_freq)
 
     def adjust_pwm_p2(channel):
@@ -172,31 +175,31 @@ def pwm_calibrate(settings, **kwargs):
         else:
             p2_freq = p2_freq - 1 #subtract 1Hz from the signal
 
-        p2.ChangeFrquency(p2_freq)
+        p2.ChangeFrequency(p2_freq)
         print("Servo 2 Frequency: ", p2_freq)
 
     def adjust_freq_p1(channel):
-        nonlocal p1_freq
+        nonlocal p1_pwm
 
         time.sleep(0.5)
-        if GPIO.input(17):
-            p1_freq = p1_freq + 0.1 #add 0.1% to the signal
+        if GPIO.input(23):
+            p1_pwm = p1_pwm + 0.1 #add 0.1% to the signal
         else:
-            p1_freq = p1_freq - 0.1 #subtract 0.1% from the signal
+            p1_pwm = p1_pwm - 0.1 #subtract 0.1% from the signal
 
-        p1.ChangeFrquency(p1_freq)
+        p1.ChangeDutyCycle(p1_freq)
         print("Servo 1 Duty Cycle: ", p1_pwm)
 
     def adjust_freq_p2(channel):
-        nonlocal p2_freq
+        nonlocal p2_pwm
 
         time.sleep(0.5)
-        if GPIO.input(17):
-            p2_freq = p2_freq + 0.1 #add 1Hz to the signal
+        if GPIO.input(27):
+            p2_pwm = p2_pwm + 0.1 #add 1Hz to the signal
         else:
-            p2_freq = p2_freq - 0.1 #subtract 1Hz from the signal
+            p2_pwm = p2_pwm - 0.1 #subtract 1Hz from the signal
 
-        p1.ChangeFrquency(p1_freq)
+        p2.ChangeDutyCycle(p1_freq)
         print("Servo 2 Duty Cycle: ", p2_pwm)
 
     GPIO.add_event_detect(17, GPIO.FALLING, callback=adjust_pwm_p1, bouncetime=300)
