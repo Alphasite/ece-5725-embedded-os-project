@@ -241,7 +241,7 @@ def two_wheel(settings, **kwargs):
         done_semaphore.release()
 
     def stop(channel):
-        time.sleep(0.5)
+        time.sleep(1)
         if GPIO.input(22):
             servo1.speed = 0
             print("Servo 1: Stopped")
@@ -250,7 +250,7 @@ def two_wheel(settings, **kwargs):
             print("Servo 2: Stopped")
 
     def servo_1_increment(channel):
-        time.sleep(0.5)
+        time.sleep(1)
         if GPIO.input(23):
             SpeedS1 = 1.0  # add 1Hz to the signal
             print("Servo 2: Counter-Clockwise Rotation")
@@ -260,7 +260,7 @@ def two_wheel(settings, **kwargs):
         servo1.speed = SpeedS1
 
     def servo_2_increment(channel):
-        time.sleep(0.5)
+        time.sleep(1)
         if GPIO.input(27):
             SpeedS2 = 1.0 # add 1Hz to the signal
             print("Servo 2: Counter-Clockwise Rotation")
