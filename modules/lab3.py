@@ -212,6 +212,38 @@ def servo_control_beta(settings, **kwargs):
     return True
 
 def two_wheel(settings, **kwargs):
+    done_semaphore = threading.Semaphore(0)
+
+    # Set up TFT Buttons as Inputs, GPIO Pins 26, 19 as Outputs
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup([17, 22, 23, 27], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+    #Create Servos using Servo Class
+    servo1 = Servo(26)
+    servo2 = Servo(19)
+
+    def quit(channel):
+        GPIO.cleanup()
+        print("Quit Button Pressed.")
+        done_semaphore.release()
+
+    def stop(channel):
+        servo1.speed = 0
+        servo2.speed = 0
+
+    def servo_1_increment(channel):
+        servo1.speed = (servo1.speed + 1) % 3
+
+    def servo_2_increment(channel):
+        servo2.speed = (servo2.speed + 1) % 3
+
+    GPIO.add_event_detect(17, GPIO.FALLING, callback=quit, bouncetime=300)
+    GPIO.add_event_detect(22, GPIO.FALLING, callback=stop, bouncetime=300)
+    GPIO.add_event_detect(23, GPIO.FALLING, callback=servo_1_increment, bouncetime=300)
+    GPIO.add_event_detect(27, GPIO.FALLING, callback=servo_2_increment, bouncetime=300)
+
+    done_semaphore.acquire()
+
     return True
 
 def rolling_control(settings, **kwargs):
