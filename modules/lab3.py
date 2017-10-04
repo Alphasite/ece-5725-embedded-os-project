@@ -126,12 +126,12 @@ def pwm_calibrate(settings, **kwargs):
 
 def servo_control(settings,**kwargs):
 
-    servo1 = Servo[26]
-    servo2 = Servo[19]
+    servo1 = Servo(26)
+    servo2 = Servo(19)
 
     servo1.speed = 0
     servo2.speed = 0
-    
+
     time.sleep(5)
 
     servo1.speed = 0.5
