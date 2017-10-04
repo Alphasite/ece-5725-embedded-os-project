@@ -288,12 +288,6 @@ def ball_2_collide_quit(settings, **kwargs):
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
 
-        frame_time_ms = clock.tick(target_framerate)
-        frame_time_s = frame_time_ms / 1000
-
-        ball1.collide_ball(ball2)
-
-        for event in pygame.event.get():
             if event.type is pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 print("Mouse Down:", event.type, pos)
@@ -304,6 +298,11 @@ def ball_2_collide_quit(settings, **kwargs):
                 continue
 
             button.interact(pos)
+
+        frame_time_ms = clock.tick(target_framerate)
+        frame_time_s = frame_time_ms / 1000
+
+        ball1.collide_ball(ball2)
 
         screen.fill(black)
         ball1.update(screen, frame_time_s)
