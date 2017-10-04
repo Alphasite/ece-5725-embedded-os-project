@@ -69,7 +69,7 @@ def blink(settings, **kwargs):
 
     return True
 
-def calibrate(settings, **kwargs):
+def pwm_calibrate(settings, **kwargs):
     # Set up TFT Buttons as Inputs, GPIO Pins 26, 19 as Outputs
     GPIO.setmode(GPIO.BCM)
     GPIO.setup([17, 22, 23, 27], GPIO.IN, pull_up_down=GPIO.PUD_UP)
