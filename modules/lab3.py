@@ -143,7 +143,7 @@ def pwm_calibrate(settings, **kwargs):
         nonlocal p1_pwm
 
         time.sleep(0.5)
-        if GPIO.input(17):
+        if GPIO.input(23):
             p1_pwm = p1_pwm + 0.1 #add 0.1% to the signal
         else:
             p1_pwm = p1_pwm - 0.1 #subtract 0.1% from the signal
@@ -155,7 +155,7 @@ def pwm_calibrate(settings, **kwargs):
         nonlocal p2_pwm
 
         time.sleep(0.5)
-        if GPIO.input(17):
+        if GPIO.input(27):
             p2_pwm = p2_pwm + 0.1 #add 1Hz to the signal
         else:
             p2_pwm = p2_pwm - 0.1 #subtract 1Hz from the signal
