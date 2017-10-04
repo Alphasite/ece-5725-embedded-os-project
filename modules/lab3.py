@@ -356,22 +356,22 @@ def rolling_control(settings, **kwargs):
     servo_1 = Servo(19)
     servo_2 = Servo(26)
 
-    def servo_1_counter_clockwise(channel):
+    def servo_1_counter_clockwise():
         servo_1.speed = 1.0
 
-    def servo_1_clockwise(channel):
+    def servo_1_clockwise():
         servo_1.speed = -1.0
 
-    def servo_1_zero(channel):
+    def servo_1_zero():
         servo_1.speed = 0.0
 
-    def servo_2_counter_clockwise(channel):
+    def servo_2_counter_clockwise():
         servo_2.speed = 1.0
 
-    def servo_2_clockwise(channel):
+    def servo_2_clockwise():
         servo_2.speed = -1.0
 
-    def servo_2_zero(channel):
+    def servo_2_zero():
         servo_2.speed = 0.0
 
     buttons.append(ModalButton((160, 120), "STOP", "Resume", stop, resume))
