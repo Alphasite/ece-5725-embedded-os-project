@@ -13,8 +13,6 @@ import RPi.GPIO as GPIO
 
 timestamp = time.time()
 
-done_semaphore = threading.Semaphore(0)
-
 running_on_pi = True if os.getenv("DEBUG") is None else False
 
 black = 0, 0, 0
@@ -89,6 +87,8 @@ def servo_control(settings, **kwargs):
 
 def pwm_calibrate(settings, **kwargs):
 
+    done_semaphore = threading.Semaphore(0)
+
     #Default Frequency/PWM Settings
     p1_freq = 1
     p2_freq = 2
@@ -113,13 +113,13 @@ def pwm_calibrate(settings, **kwargs):
         nonlocal p1_freq
 
         time.sleep(0.5)
-        if GPIO.INPUT(17):
+        if GPIO.input(17):
             p1_freq = p1_freq + 1 #add 1Hz to the signal
         else:
             p1_freq = p1_freq - 1 #subtract 1Hz from the signal
 
         #Supplementary "KILL" Function by holding Buttons 1 & 2
-        if GPIO.INPUT(22):
+        if GPIO.input(22):
             p.stop(p1)
             p.stop(p2)
             print("Servos Stopped")
@@ -131,7 +131,7 @@ def pwm_calibrate(settings, **kwargs):
         nonlocal p2_freq
 
         time.sleep(0.5)
-        if GPIO.INPUT(22):
+        if GPIO.input(22):
             p2_freq = p2_freq + 1 #add 1Hz to the signal
         else:
             p2_freq = p2_freq - 1 #subtract 1Hz from the signal
@@ -143,7 +143,7 @@ def pwm_calibrate(settings, **kwargs):
         nonlocal p1_freq
 
         time.sleep(0.5)
-        if GPIO.INPUT(17):
+        if GPIO.input(17):
             p1_freq = p1_freq + 0.1 #add 0.1% to the signal
         else:
             p1_freq = p1_freq - 0.1 #subtract 0.1% from the signal
@@ -155,7 +155,7 @@ def pwm_calibrate(settings, **kwargs):
         nonlocal p2_freq
 
         time.sleep(0.5)
-        if GPIO.INPUT(17):
+        if GPIO.input(17):
             p2_freq = p2_freq + 0.1 #add 1Hz to the signal
         else:
             p2_freq = p2_freq - 0.1 #subtract 1Hz from the signal
