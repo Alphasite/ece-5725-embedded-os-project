@@ -69,7 +69,7 @@ def blink(settings, **kwargs):
 
     return True
 
-def servo_control(settings, **kwargs):
+def calibrate(settings, **kwargs):
     # Set up TFT Buttons as Inputs, GPIO Pins 26, 19 as Outputs
     GPIO.setmode(GPIO.BCM)
     GPIO.setup([17, 22, 23, 27], GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -80,12 +80,15 @@ def servo_control(settings, **kwargs):
     p2 = GPIO.PWM(19, 50)  # 0.020ms between pulses
 
     # Start PWM
-    p1.start(50)  # 50% Duty Cycle
-    p2.start(50)  # 50% Duty Cycle
+    p1.start(7.5)  # 7.5% Duty Cycle [1.5mS signal]
+    p2.start(7.5)  # 7.5% Duty Cycle [1.5mS signal]
+
+    while True:
+        time.sleep(0.2)
 
     return True
 
-def pwm_calibrate(settings, **kwargs):
+def servo_control(settings, **kwargs):
 
     done_semaphore = threading.Semaphore(0)
 
