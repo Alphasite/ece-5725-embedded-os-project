@@ -7,5 +7,5 @@ MODULE = {
     "fifo": __fifo.MODULE,
     "lab1": __lab2.MODULE,
     "lab2": __lab2.MODULE,
-    "lab3": __lab2.MODULE,
+    "lab3": __lab3.MODULE,
 }
