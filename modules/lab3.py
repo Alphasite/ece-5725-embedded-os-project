@@ -269,6 +269,7 @@ def two_wheel(settings, **kwargs):
             print("Servo 2: Clockwise Rotation")
         servo2.speed = SpeedS2
 
+    time.sleep(1)
     GPIO.add_event_detect(17, GPIO.FALLING, callback=quit, bouncetime=300)
     GPIO.add_event_detect(22, GPIO.FALLING, callback=stop, bouncetime=300)
     GPIO.add_event_detect(23, GPIO.FALLING, callback=servo_1_increment, bouncetime=300)
