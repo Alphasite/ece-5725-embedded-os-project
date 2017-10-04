@@ -62,6 +62,7 @@ class Servo:
     @speed.setter
     def speed(self, value):
         self.pulse_width = value * Servo.maximum_pulse_width_range + Servo.zero_pulse_width
+        self.set_pwm()
 
     @property
     def period(self):
@@ -74,7 +75,7 @@ class Servo:
 
     @property
     def duty_cycle(self):
-        return self.pulse_width / self.period
+        return (self.pulse_width / self.period) * 100
 
 def setup_for_pi():
     os.putenv('SDL_VIDEODRIVER', 'fbcon')  # Display on piTFT
@@ -139,6 +140,8 @@ def servo_control(settings,**kwargs):
     servo1.speed = 0.5
     servo2.speed = -0.5
 
+    time.sleep(5)
+    
     return True
 
 def servo_control_beta(settings, **kwargs):
