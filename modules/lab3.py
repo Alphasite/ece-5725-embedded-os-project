@@ -332,12 +332,12 @@ def rolling_control(settings, **kwargs):
     if running_on_pi:
         setup_for_pi()
 
+    GPIO.setmode(GPIO.BCM)
     pygame.init()
 
     screen = pygame.display.set_mode(screen_size)
 
     done = False
-    go = False
 
     def exit_loop():
         nonlocal done
