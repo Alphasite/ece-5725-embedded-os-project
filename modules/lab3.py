@@ -48,7 +48,7 @@ class Servo:
         self.pulse_width = Servo.zero_pulse_width
 
         GPIO.setup(servo_pin, GPIO.OUT, initial=GPIO.LOW)
-        self.pwm = GPIO.PWM(26, self.frequency)
+        self.pwm = GPIO.PWM(servo_pin, self.frequency)
         self.pwm.start(self.duty_cycle)
 
     def set_pwm(self):
@@ -71,7 +71,7 @@ class Servo:
 
     @property
     def frequency(self):
-        return 1 / (self.period * 1000)
+        return 1 / (self.period / 1000)
 
     @property
     def duty_cycle(self):
@@ -125,12 +125,12 @@ def pwm_calibrate(settings, **kwargs):
 
     return True
 
-def servo_control(settings,**kwargs):
 
+def servo_control(settings,**kwargs):
     GPIO.setmode(GPIO.BCM)
 
-    servo1 = Servo(26)
-    servo2 = Servo(19)
+    servo1 = Servo(19)
+    servo2 = Servo(26)
 
     servo1.speed = 0
     servo2.speed = 0
