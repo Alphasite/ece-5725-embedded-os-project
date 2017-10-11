@@ -382,21 +382,22 @@ def robot_control(settings, **kwargs):
 
     def command_thread_function():
         steps = [
-            (3, servo_1_clockwise, servo_2_counter_clockwise),
-            (2, servo_1_zero, servo_2_zero,),
-            (3, servo_1_counter_clockwise, servo_2_clockwise),
-            (2, servo_1_zero, servo_2_zero,),
-            (1, servo_1_clockwise, servo_2_clockwise),
-            (2, servo_1_zero, servo_2_zero,),
-            (1, servo_1_counter_clockwise, servo_2_counter_clockwise),
-            (2, servo_1_zero, servo_2_zero,),
+            (3, servo_1_clockwise, servo_2_counter_clockwise, "forward"),
+            (2, servo_1_zero, servo_2_zero, "stop"),
+            (3, servo_1_counter_clockwise, servo_2_clockwise, "backwards"),
+            (2, servo_1_zero, servo_2_zero, "stop"),
+            (1, servo_1_clockwise, servo_2_clockwise, "left"),
+            (2, servo_1_zero, servo_2_zero, "stop"),
+            (1, servo_1_counter_clockwise, servo_2_counter_clockwise, "right"),
+            (2, servo_1_zero, servo_2_zero, "stop"),
         ]
 
         while not loop.done:
-            for (delay, left, right) in steps:
+            for delay, left, right, command in steps:
                 if loop.done:
                     break
 
+                print(command)
                 left(loop)
                 right(loop)
                 time.sleep(delay)
