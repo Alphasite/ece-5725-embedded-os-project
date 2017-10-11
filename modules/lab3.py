@@ -417,7 +417,7 @@ def robot_control(settings, **kwargs):
 
     buttons = [
         ModalButton(modal_active_button, modal_disabled_button),
-        Button((160, 140), "Start", exit_loop, text_size=30),
+        Button((160, 150), "Start", start_command_loop, text_size=30),
         Button((160, 200), "Quit", exit_loop, text_size=30),
     ]
 
