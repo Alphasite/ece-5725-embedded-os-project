@@ -406,7 +406,7 @@ def robot_control(settings, **kwargs):
         command_thread.start()
 
     def servo_stop(loop: RunLoop):
-        nonlocal run_commands
+        nonlocal run_commands, command_thread
 
         servo_1.stop()
         servo_2.stop()
@@ -418,6 +418,8 @@ def robot_control(settings, **kwargs):
 
         if command_thread.isAlive():
             command_thread.join()
+            command_thread = threading.Thread(target=command_thread_function)
+
 
         print("Command thread done.")
 
