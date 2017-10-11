@@ -415,7 +415,10 @@ def robot_control(settings, **kwargs):
 
         print("Waiting on command thread death.")
         run_commands = False
-        command_thread.join()
+
+        if command_thread.isAlive:
+            command_thread.join()
+
         print("Command thread done.")
 
     def exit_loop(loop: RunLoop):
