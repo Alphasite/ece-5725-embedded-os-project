@@ -284,13 +284,13 @@ def rolling_control(settings, **kwargs):
     buttons = [
         ModalButton(modal_active_button, modal_disabled_button),
 
-        Button((160, 200), "Quit", exit_loop),
-        Button(( 40, 200), " + ", servo_1_clockwise),
-        Button(( 80, 200), " 0 ", servo_1_zero),
-        Button((120, 200), " - ", servo_1_counter_clockwise),
-        Button((200, 200), " + ", servo_2_clockwise),
-        Button((240, 200), " 0 ", servo_2_zero),
-        Button((280, 200), " - ", servo_2_counter_clockwise),
+        Button((160, 200), "Quit", exit_loop, text_size=35),
+        Button(( 40, 200), " + ", servo_1_clockwise, text_size=35),
+        Button(( 80, 200), " 0 ", servo_1_zero, text_size=35),
+        Button((120, 200), " - ", servo_1_counter_clockwise, text_size=35),
+        Button((200, 200), " + ", servo_2_clockwise, text_size=35),
+        Button((240, 200), " 0 ", servo_2_zero, text_size=35),
+        Button((280, 200), " - ", servo_2_counter_clockwise, text_size=35),
     ]
 
     labels = [
