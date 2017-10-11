@@ -393,6 +393,7 @@ def robot_control(settings, **kwargs):
         ]
 
         while not loop.done:
+            print("Starting command loop.")
             for delay, left, right, command in steps:
                 if loop.done:
                     break
@@ -402,14 +403,13 @@ def robot_control(settings, **kwargs):
                 right(loop)
                 time.sleep(delay)
 
-            print("Loop done, restarting.")
 
         print("Command thread done.")
 
     command_thread = threading.Thread(target=command_thread_function)
 
     def start_command_loop(loop: RunLoop):
-        if not command_thread.isAlive:
+        if not command_thread.isAlive():
             command_thread.start()
 
     modal_active_button = Button((160, 100), "STOP", servo_stop, background_colour=red, text_size=35)
