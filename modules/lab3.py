@@ -421,8 +421,8 @@ def robot_control(settings, **kwargs):
     def exit_loop(loop: RunLoop):
         loop.done = True
 
-    modal_active_button = Button((160, 100), "STOP", servo_stop, background_colour=red, text_size=35)
-    modal_disabled_button = Button((160, 100), "Resume", servo_resume, background_colour=green, text_size=35)
+    modal_active_button = Button((160, 100), "Stop", servo_stop, background_colour=red, text_size=35)
+    modal_disabled_button = Button((160, 100), "Start", servo_resume, background_colour=green, text_size=35)
 
     buttons = [
         ModalButton(modal_disabled_button, modal_active_button),
@@ -440,6 +440,8 @@ def robot_control(settings, **kwargs):
         *labels,
         *buttons
     ]
+
+    servo_stop(loop)
 
     loop.start_loop(entities)
 
