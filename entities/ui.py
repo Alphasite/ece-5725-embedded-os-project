@@ -30,7 +30,7 @@ class Button(Entity):
     def __init__(self, center: point, text: str, action: callable, background_colour: Optional[colour] = None,
                  text_size: int = 25, debouncer: Debouncer = Debouncer()):
         self.action = action
-        self.label = Label(center, text, background_colour, text_size=text_size)
+        self.label = Label(center, text, background_colour=background_colour, text_size=text_size)
         self.debouncer = debouncer
 
     def draw(self, screen):
