@@ -420,7 +420,6 @@ def robot_control(settings, **kwargs):
             command_thread.join()
             command_thread = threading.Thread(target=command_thread_function)
 
-
         print("Command thread done.")
 
     def exit_loop(loop: RunLoop):
