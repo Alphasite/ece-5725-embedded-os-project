@@ -40,7 +40,7 @@ class RunLoop:
         clock = Clock()
 
         while not self.done:
-            for event in pygame.event.get([pygame.MOUSEBUTTONUP, pygame.QUIT]):
+            for event in pygame.event.get():
                 if event.type is pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
 
