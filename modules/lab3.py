@@ -4,6 +4,8 @@ import threading
 import time
 from typing import List
 
+from entities.entity import Entity
+
 try:
     import RPi.GPIO as GPIO
 except ImportError:
@@ -310,6 +312,128 @@ def rolling_control(settings, **kwargs):
     return True
 
 
+def robot_control(settings, **kwargs):
+    loop = RunLoop()
+
+    servo_1 = Servo(19)
+    servo_2 = Servo(26)
+
+    servo_1.history = [("Stop", 0), ("Stop", 0), ("Stop", 0)]
+    servo_2.history = [("Stop", 0), ("Stop", 0), ("Stop", 0)]
+
+    servo_1.labels = [
+        Label((60,  60), "", text_size=15),
+        Label((60, 100), "", text_size=15),
+        Label((60, 140), "", text_size=15),
+    ]
+
+    servo_2.labels = [
+        Label((260,  60), "", text_size=15),
+        Label((260, 100), "", text_size=15),
+        Label((260, 140), "", text_size=15),
+    ]
+
+    update_servo_label_history(servo_1.history, servo_1.labels)
+    update_servo_label_history(servo_2.history, servo_2.labels)
+
+    def push_history(servo: Servo, label: str):
+        time = datetime.now().strftime('%H:%M:%S')
+        servo.history = servo.history[1:3] + [(label, time)]
+        update_servo_label_history(servo.history, servo.labels)
+
+    def servo_1_counter_clockwise(loop: RunLoop):
+        servo_1.speed = 0.5
+        push_history(servo_1, "CW")
+
+    def servo_1_clockwise(loop: RunLoop):
+        servo_1.speed = -0.5
+        push_history(servo_1, "CCW")
+
+    def servo_1_zero(loop: RunLoop):
+        servo_1.speed = 0.5
+        push_history(servo_1, "ZERO")
+
+    def servo_2_counter_clockwise(loop: RunLoop):
+        servo_2.speed = 0.5
+        push_history(servo_2, "CW")
+
+    def servo_2_clockwise(loop: RunLoop):
+        servo_2.speed = -0.5
+        push_history(servo_2, "CCW")
+
+    def servo_2_zero(loop: RunLoop):
+        servo_2.speed = 0.0
+        push_history(servo_2, "ZERO")
+
+    def servo_resume(loop: RunLoop):
+        servo_1.start()
+        servo_2.start()
+        push_history(servo_1, "GO")
+        push_history(servo_2, "GO")
+
+    def servo_stop(loop: RunLoop):
+        servo_1.stop()
+        servo_2.stop()
+        push_history(servo_1, "HALT")
+        push_history(servo_2, "HALT")
+
+    def exit_loop(loop: RunLoop):
+        loop.done = True
+
+    def command_thread_function():
+        steps = [
+            (3, servo_1_clockwise, servo_2_counter_clockwise),
+            (2, servo_1_zero, servo_2_zero,),
+            (3, servo_1_counter_clockwise, servo_2_clockwise),
+            (2, servo_1_zero, servo_2_zero,),
+            (1, servo_1_clockwise, servo_2_clockwise),
+            (2, servo_1_zero, servo_2_zero,),
+            (1, servo_1_counter_clockwise, servo_2_counter_clockwise),
+            (2, servo_1_zero, servo_2_zero,),
+        ]
+
+        while not loop.done:
+            for delay, step in steps:
+                if not loop.done:
+                    break
+
+                step(loop)
+                time.sleep(delay)
+
+            print("Loop done, restarting.")
+
+        print("Command thread done.")
+
+    modal_active_button = Button((160, 100), "STOP", servo_stop, background_colour=red, text_size=35)
+    modal_disabled_button = Button((160, 100), "Resume", servo_resume, background_colour=green, text_size=35)
+
+    buttons = [
+        ModalButton(modal_active_button, modal_disabled_button),
+        Button((160, 140), "Quit", exit_loop, text_size=30),
+    ]
+
+    labels = [
+        Label((80, 20), "Servo 1"),
+        Label((240, 20), "Servo 2"),
+        *servo_1.labels,
+        *servo_2.labels,
+    ]
+
+    entities = [
+        *labels,
+        *buttons
+    ]
+
+    command_thread = threading.Thread(target=command_thread_function)
+    command_thread.start()
+
+    loop.start_loop(entities)
+
+    command_thread.join()
+
+    return True
+
+
 MODULE = {
     "blink": blink,
     "pwm_calibrate": pwm_calibrate,
@@ -317,4 +441,5 @@ MODULE = {
     "servo_control": servo_control,
     "two_wheel": two_wheel,
     "rolling_control": rolling_control,
+    "robot_control": robot_control,
 }
