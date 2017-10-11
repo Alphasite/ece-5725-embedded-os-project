@@ -350,7 +350,7 @@ def robot_control(settings, **kwargs):
         push_history(servo_1, "CCW")
 
     def servo_1_zero(loop: RunLoop):
-        servo_1.speed = 0.5
+        servo_1.speed = 0.0
         push_history(servo_1, "ZERO")
 
     def servo_2_counter_clockwise(loop: RunLoop):
