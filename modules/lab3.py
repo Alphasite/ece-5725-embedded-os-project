@@ -382,13 +382,13 @@ def robot_control(settings, **kwargs):
 
     def command_thread_function():
         steps = [
-            (3, servo_1_clockwise, servo_2_counter_clockwise, "forward"),
+            (1.5, servo_1_clockwise, servo_2_counter_clockwise, "forward"),
             (2, servo_1_zero, servo_2_zero, "stop"),
-            (3, servo_1_counter_clockwise, servo_2_clockwise, "backwards"),
+            (1.5, servo_1_counter_clockwise, servo_2_clockwise, "backwards"),
             (2, servo_1_zero, servo_2_zero, "stop"),
-            (1, servo_1_clockwise, servo_2_clockwise, "left"),
+            (1, servo_1_counter_clockwise, servo_2_counter_clockwise, "left"),
             (2, servo_1_zero, servo_2_zero, "stop"),
-            (1, servo_1_counter_clockwise, servo_2_counter_clockwise, "right"),
+            (1, servo_1_clockwise, servo_2_clockwise, "right"),
             (2, servo_1_zero, servo_2_zero, "stop"),
         ]
 
@@ -406,12 +406,19 @@ def robot_control(settings, **kwargs):
 
         print("Command thread done.")
 
+    command_thread = threading.Thread(target=command_thread_function)
+
+    def start_command_loop(loop: RunLoop):
+        if not command_thread.isAlive:
+            command_thread.start()
+
     modal_active_button = Button((160, 100), "STOP", servo_stop, background_colour=red, text_size=35)
     modal_disabled_button = Button((160, 100), "Resume", servo_resume, background_colour=green, text_size=35)
 
     buttons = [
         ModalButton(modal_active_button, modal_disabled_button),
-        Button((160, 140), "Quit", exit_loop, text_size=30),
+        Button((160, 140), "Start", exit_loop, text_size=30),
+        Button((160, 200), "Quit", exit_loop, text_size=30),
     ]
 
     labels = [
@@ -426,12 +433,7 @@ def robot_control(settings, **kwargs):
         *buttons
     ]
 
-    command_thread = threading.Thread(target=command_thread_function)
-    command_thread.start()
-
     loop.start_loop(entities)
-
-    command_thread.join()
 
     return True
 
