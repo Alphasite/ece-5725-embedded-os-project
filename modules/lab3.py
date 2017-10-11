@@ -393,11 +393,12 @@ def robot_control(settings, **kwargs):
         ]
 
         while not loop.done:
-            for delay, step in steps:
-                if not loop.done:
+            for (delay, left, right) in steps:
+                if loop.done:
                     break
 
-                step(loop)
+                left(loop)
+                right(loop)
                 time.sleep(delay)
 
             print("Loop done, restarting.")
