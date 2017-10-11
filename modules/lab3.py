@@ -336,6 +336,35 @@ def robot_control(settings, **kwargs):
     update_servo_label_history(servo_1.history, servo_1.labels)
     update_servo_label_history(servo_2.history, servo_2.labels)
 
+    run_commands = False
+
+    def command_thread_function():
+        steps = [
+            (1.5, servo_1_clockwise, servo_2_counter_clockwise, "forward"),
+            (2, servo_1_zero, servo_2_zero, "stop"),
+            (1.5, servo_1_counter_clockwise, servo_2_clockwise, "backwards"),
+            (2, servo_1_zero, servo_2_zero, "stop"),
+            (1, servo_1_counter_clockwise, servo_2_counter_clockwise, "left"),
+            (2, servo_1_zero, servo_2_zero, "stop"),
+            (1, servo_1_clockwise, servo_2_clockwise, "right"),
+            (2, servo_1_zero, servo_2_zero, "stop"),
+        ]
+
+        while not loop.done and run_commands:
+            print("Starting command loop.")
+            for delay, left, right, command in steps:
+                if loop.done or not run_commands:
+                    break
+
+                print(command)
+                left(loop)
+                right(loop)
+                time.sleep(delay)
+
+        print("Command thread done.")
+
+    command_thread = threading.Thread(target=command_thread_function)
+
     def push_history(servo: Servo, label: str):
         time = datetime.now().strftime('%H:%M:%S')
         servo.history = servo.history[1:3] + [(label, time)]
@@ -366,58 +395,37 @@ def robot_control(settings, **kwargs):
         push_history(servo_2, "ZERO")
 
     def servo_resume(loop: RunLoop):
+        nonlocal run_commands
+
         servo_1.start()
         servo_2.start()
         push_history(servo_1, "GO")
         push_history(servo_2, "GO")
 
+        run_commands = True
+        command_thread.start()
+
     def servo_stop(loop: RunLoop):
+        nonlocal run_commands
+
         servo_1.stop()
         servo_2.stop()
         push_history(servo_1, "HALT")
         push_history(servo_2, "HALT")
 
-    def exit_loop(loop: RunLoop):
-        loop.done = True
-
-    def command_thread_function():
-        steps = [
-            (1.5, servo_1_clockwise, servo_2_counter_clockwise, "forward"),
-            (2, servo_1_zero, servo_2_zero, "stop"),
-            (1.5, servo_1_counter_clockwise, servo_2_clockwise, "backwards"),
-            (2, servo_1_zero, servo_2_zero, "stop"),
-            (1, servo_1_counter_clockwise, servo_2_counter_clockwise, "left"),
-            (2, servo_1_zero, servo_2_zero, "stop"),
-            (1, servo_1_clockwise, servo_2_clockwise, "right"),
-            (2, servo_1_zero, servo_2_zero, "stop"),
-        ]
-
-        while not loop.done:
-            print("Starting command loop.")
-            for delay, left, right, command in steps:
-                if loop.done:
-                    break
-
-                print(command)
-                left(loop)
-                right(loop)
-                time.sleep(delay)
-
-
+        print("Waiting on command thread death.")
+        run_commands = False
+        command_thread.join()
         print("Command thread done.")
 
-    command_thread = threading.Thread(target=command_thread_function)
-
-    def start_command_loop(loop: RunLoop):
-        if not command_thread.isAlive():
-            command_thread.start()
+    def exit_loop(loop: RunLoop):
+        loop.done = True
 
     modal_active_button = Button((160, 100), "STOP", servo_stop, background_colour=red, text_size=35)
     modal_disabled_button = Button((160, 100), "Resume", servo_resume, background_colour=green, text_size=35)
 
     buttons = [
-        ModalButton(modal_active_button, modal_disabled_button),
-        Button((160, 150), "Start", start_command_loop, text_size=30),
+        ModalButton(modal_disabled_button, modal_active_button),
         Button((160, 200), "Quit", exit_loop, text_size=30),
     ]
 
