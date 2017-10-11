@@ -52,7 +52,6 @@ class RunLoop:
                 if event.type == pygame.QUIT:
                     self.done = True
 
-
             frame_time_ms = clock.tick(target_framerate)
             frame_time_s = frame_time_ms / 1000
 

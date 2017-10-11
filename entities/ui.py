@@ -1,9 +1,4 @@
-
 from datetime import timedelta, datetime
-
-
-
-
 from typing import Optional
 
 import pygame
