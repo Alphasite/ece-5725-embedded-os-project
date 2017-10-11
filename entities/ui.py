@@ -78,7 +78,7 @@ class Label(Entity):
         self._text = value
         self.surface = self.font.render(self.text, True, white)
         self.rect = self.surface.get_rect(center=self.center)
-        self.background_rect = self.rect.inflate(5, 5)
+        self.background_rect = self.rect.inflate(10, 10)
 
 
 class ModalButton(Entity):

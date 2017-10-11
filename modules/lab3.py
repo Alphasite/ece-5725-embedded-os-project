@@ -220,15 +220,15 @@ def rolling_control(settings, **kwargs):
     servo_2.history = [("Stop", 0), ("Stop", 0), ("Stop", 0)]
 
     servo_1.labels = [
-        Label((80,  60), "", text_size=15),
-        Label((80, 100), "", text_size=15),
-        Label((80, 140), "", text_size=15),
+        Label((60,  60), "", text_size=15),
+        Label((60, 100), "", text_size=15),
+        Label((60, 140), "", text_size=15),
     ]
 
     servo_2.labels = [
-        Label((240,  60), "", text_size=15),
-        Label((240, 100), "", text_size=15),
-        Label((240, 140), "", text_size=15),
+        Label((260,  60), "", text_size=15),
+        Label((260, 100), "", text_size=15),
+        Label((260, 140), "", text_size=15),
     ]
 
     update_servo_label_history(servo_1.history, servo_1.labels)
@@ -278,19 +278,19 @@ def rolling_control(settings, **kwargs):
     def exit_loop(loop: RunLoop):
         loop.done = True
 
-    modal_active_button = Button((160, 120), "STOP", servo_stop, background_colour=red)
-    modal_disabled_button = Button((160, 120), "Resume", servo_resume, background_colour=green)
+    modal_active_button = Button((160, 100), "STOP", servo_stop, background_colour=red, text_size=35)
+    modal_disabled_button = Button((160, 100), "Resume", servo_resume, background_colour=green, text_size=35)
 
     buttons = [
         ModalButton(modal_active_button, modal_disabled_button),
 
-        Button((160, 200), "Quit", exit_loop, text_size=35),
-        Button(( 40, 200), " + ", servo_1_clockwise, text_size=35),
-        Button(( 80, 200), " 0 ", servo_1_zero, text_size=35),
-        Button((120, 200), " - ", servo_1_counter_clockwise, text_size=35),
-        Button((200, 200), " + ", servo_2_clockwise, text_size=35),
-        Button((240, 200), " 0 ", servo_2_zero, text_size=35),
-        Button((280, 200), " - ", servo_2_counter_clockwise, text_size=35),
+        Button((160, 140), "Quit", exit_loop, text_size=30),
+        Button(( 35, 200), " + ", servo_1_clockwise, text_size=35),
+        Button(( 75, 200), " 0 ", servo_1_zero, text_size=35),
+        Button((115, 200), " - ", servo_1_counter_clockwise, text_size=35),
+        Button((205, 200), " + ", servo_2_clockwise, text_size=35),
+        Button((245, 200), " 0 ", servo_2_zero, text_size=35),
+        Button((285, 200), " - ", servo_2_counter_clockwise, text_size=35),
     ]
 
     labels = [
