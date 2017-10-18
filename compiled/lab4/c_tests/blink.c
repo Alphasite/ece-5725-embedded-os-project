@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <wiringPi.h>
+#include <time.h>
 
 #define LED 24 //BCM.GPIO 19 = wiringPi Pin 24
 #define DELAY 500 //ms
