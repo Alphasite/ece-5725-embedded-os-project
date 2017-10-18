@@ -32,3 +32,8 @@ int main (int argc, char** argv)
   current_sec = 0;
 
   pinMode(24, OUTPUT);
+
+  return 0;
+  
+}
+
