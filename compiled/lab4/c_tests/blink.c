@@ -31,4 +31,4 @@ int main (int argc, char** argv)
   start_sec = t.tv_sec;
   current_sec = 0;
 
-  pinMode (LED, OUTPUT) ;
+  pinMode(24, OUTPUT);
