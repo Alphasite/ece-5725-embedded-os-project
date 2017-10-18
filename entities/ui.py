@@ -1,3 +1,8 @@
+"""
+Nishad Mathur (nm594) & Adam Halverson (abh222)
+Lab 3, Lab Section 02, 17/10/17
+"""
+
 from datetime import timedelta, datetime
 from typing import Optional
 

@@ -1,10 +1,13 @@
+"""
+Nishad Mathur (nm594) & Adam Halverson (abh222)
+Lab 3, Lab Section 02, 17/10/17
+"""
+
 from datetime import datetime
 
 import threading
 import time
 from typing import List
-
-from entities.entity import Entity
 
 try:
     import RPi.GPIO as GPIO
