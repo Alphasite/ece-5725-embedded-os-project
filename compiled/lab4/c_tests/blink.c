@@ -33,7 +33,21 @@ int main (int argc, char** argv)
 
   pinMode(24, OUTPUT);
 
-  return 0;
-  
+  while( current_sec < 100 ) {   // run the loop for 100 sec
+     digitalWrite (24,  PinValue) ;
+     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL); // delay a bit...
+     PinValue = PinValue ^ 1;
+     t.tv_nsec += period;   // add in initial period
+
+     while (t.tv_nsec >= NSEC_PER_SEC) {   // This accounts for 1 sec rollover
+        t.tv_nsec -= NSEC_PER_SEC;
+        t.tv_sec++;
+        current_sec = t.tv_sec - start_sec;  // how many seconds since we started?
+     }
+  }
+  printf ("stopped at %d seconds\n", current_sec);
+
+  return 0 ;
 }
+
 
