@@ -30,7 +30,7 @@ int main (int argc, char** argv)
 
   pinMode(24, OUTPUT);
 
-  while( current_sec < 100 ) {   // run the loop for 100 sec
+  while( current_sec < 30 ) {   // run the loop for 100 sec
      digitalWrite (24,  PinValue) ;
      clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL); // delay a bit...
      PinValue = PinValue ^ 1;
