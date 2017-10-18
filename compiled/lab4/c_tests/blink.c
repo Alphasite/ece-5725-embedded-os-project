@@ -8,7 +8,7 @@ struct timespec t;
 
 int main (int argc, char** argv)
 {
-  int period = 25000;  // set initial period for delay in nsec
+  int period = 1000;  // set initial period for delay in nsec
   int PinValue = 0;  // hi/low indication of output Pin
   unsigned int current_sec, start_sec;
   float freq;
