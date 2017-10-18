@@ -24,35 +24,41 @@ from entities import red, green
 
 
 def blink_pwm(settings, **kwargs):
-    # Set up TFT Buttons as Inputs, GPIO Pins 26, 19 as Outputs
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup([17, 22, 23, 27], GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup([26, 19], GPIO.OUT, initial=GPIO.LOW)
 
-    # Create PWM Instances
-    p1 = GPIO.PWM(26, 1)  # Frequency of 1Hz
-    p2 = GPIO.PWM(19, 2)  # Frequenxy of 2Hz
+    try:
+        # Set up TFT Buttons as Inputs, GPIO Pins 26, 19 as Outputs
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup([17, 22, 23, 27], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup([26, 19], GPIO.OUT, initial=GPIO.LOW)
 
-    # Start PWM
-    p1.start(50)  # 50% Duty Cycle
-    p2.start(50)  # 50% Duty Cycle
+        # Create PWM Instances
+        p1 = GPIO.PWM(26, 1)  # Frequency of 1Hz
+        p2 = GPIO.PWM(19, 2)  # Frequenxy of 2Hz
 
-    while True:
-        time.sleep(2)
+        # Start PWM
+        p1.start(50)  # 50% Duty Cycle
+        p2.start(50)  # 50% Duty Cycle
+
+        while True:
+            time.sleep(2)
+    finally:
+        GPIO.cleanup()
 
 
 def blink_loop(settings, **kwargs):
     led_pin = 19
 
-    # Set up TFT Buttons as Inputs, GPIO Pins 26, 19 as Outputs
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(led_pin, GPIO.OUT, initial=GPIO.LOW)
+    try:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(led_pin, GPIO.OUT, initial=GPIO.LOW)
 
-    while True:
-        GPIO.output(led_pin, GPIO.HIGH)
-        time.sleep(0.1)
-        GPIO.output(led_pin, GPIO.LOW)
-        time.sleep(0.1)
+        while True:
+            GPIO.output(led_pin, GPIO.HIGH)
+            time.sleep(0.5)
+            GPIO.output(led_pin, GPIO.LOW)
+            time.sleep(0.5)
+    finally:
+        GPIO.cleanup()
 
 
 MODULE = {
