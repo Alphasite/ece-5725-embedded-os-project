@@ -2,16 +2,13 @@
 #include <wiringPi.h>
 #include <time.h>
 
-#define LED 24 //BCM.GPIO 19 = wiringPi Pin 24
-#define DELAY 500 //ms
-
 #define NSEC_PER_SEC    (1000000000) /* The number of nsecs per sec. */
 
 struct timespec t;
 
 int main (int argc, char** argv)
 {
-  int period = 500000;  // set initial period for delay in nsec
+  int period = 1000000;  // set initial period for delay in nsec
   int PinValue = 0;  // hi/low indication of output Pin
   unsigned int current_sec, start_sec;
   float freq;
