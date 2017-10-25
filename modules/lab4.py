@@ -52,11 +52,14 @@ def blink_loop(settings, **kwargs):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(led_pin, GPIO.OUT, initial=GPIO.LOW)
 
+        frequency = int(input("Enter the frequency:"))
+        period = 1.0 / frequency / 2.0
+
         while True:
             GPIO.output(led_pin, GPIO.HIGH)
-            time.sleep(0.5)
+            time.sleep(period)
             GPIO.output(led_pin, GPIO.LOW)
-            time.sleep(0.5)
+            time.sleep(period)
     finally:
         GPIO.cleanup()
 
