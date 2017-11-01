@@ -2,6 +2,9 @@
 //  jfs9, 3/17/16   Performance test on C array
 //        10/10/17 Check function of code
 //
+//  Nishad Mathur (nm594) & Adam Halverson (abh222)
+//  Lab 4, Lab Section 02, 01/11/17
+//
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>

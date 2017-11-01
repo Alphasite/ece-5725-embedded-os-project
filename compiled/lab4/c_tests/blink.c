@@ -1,3 +1,8 @@
+//
+//  Nishad Mathur (nm594) & Adam Halverson (abh222)
+//  Lab 4, Lab Section 02, 01/11/17
+//
+
 #include <stdio.h>
 #include <wiringPi.h>
 #include <time.h>
