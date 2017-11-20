@@ -19,3 +19,6 @@ class Entity:
 
     def interact(self, loop: 'RunLoop', interact_point: 'point'):
         pass
+
+    def drag(self, loop: 'RunLoop', start_point: 'point', current_point: 'point'):
+        pass

@@ -2,12 +2,26 @@
 Nishad Mathur (nm594) & Adam Halverson (abh222)
 Lab 3, Lab Section 02, 17/10/17
 """
+import threading
+from queue import Queue
+
+from math import sqrt
+
+import os
+from pygame.time import Clock
 
 try:
     import RPi.GPIO as GPIO
 except ImportError:
     from unittest.mock import Mock
     GPIO = Mock()
+
+import serial
+
+if "DEBUG" in os.environ:
+    debug = True
+else:
+    debug = False
 
 
 class Servo:
@@ -52,3 +66,222 @@ class Servo:
     @property
     def duty_cycle(self):
         return (self.pulse_width / self.period) * 100
+
+
+class SerialChannel:
+    def __init__(self, pwm_duty_cycle: float, pwm_period: float) -> None:
+        if not debug:
+            self.serial = serial.Serial('/dev/ttyUSB0', 9600)
+        else:
+            self.serial = None
+
+        self.pwm_outputs = [PWMOutput(self, i, pwm_period, pwm_duty_cycle) for i in range(4)]
+        self.digital_outputs = [DigitalOutput(self, i, False) for i in range(4)]
+        self.analog_inputs = [AnalogInput(self, i) for i in range(4)]
+
+        self.inputs = Queue()
+
+        self.running = True
+        self.thread = threading.Thread(target=lambda: self.read_thread())
+        self.thread.start()
+
+    def send(self, string: str):
+        if not "read" in string:
+            print("Request:", string)
+
+        string += "\n"
+        string = string.encode('ascii')
+
+        if not debug:
+            self.serial.write(string)
+
+    def read_thread(self):
+        while self.running:
+
+            result = self._read()
+
+            if result.startswith("log:"):
+                print(result)
+            else:
+                # print("Response:", result)
+                self.inputs.put(result)
+
+    def _read(self) -> str:
+        if debug:
+            return "DEBUG"
+
+        while self.running:
+            line = self.serial.read_until()
+            line = line.decode("ascii")
+            line = line.strip()
+
+            if len(line) > 0:
+                return line
+
+    def read(self) -> str:
+        return self.inputs.get()
+
+
+class PWMOutput:
+    def __init__(self, serial_channel: SerialChannel, index: int, period: float, duty_cycle: float) -> None:
+        self.serial_channel = serial_channel
+        self.index = index
+        self._period = period
+        self._duty_cycle = duty_cycle
+
+    def _update(self):
+        self.serial_channel.send("write pwm {pin} {period} {duty}".format(
+            pin=self.index,
+            period=self._period,
+            duty=self._duty_cycle
+        ))
+
+    @property
+    def duty_cycle(self) -> float:
+        return self._duty_cycle
+
+    @duty_cycle.setter
+    def duty_cycle(self, value: float):
+        self._duty_cycle = value
+        self._update()
+
+    @property
+    def period(self) -> float:
+        return self._period
+
+    @period.setter
+    def period(self, value: float):
+        self._period = value
+        self._update()
+
+
+class DigitalOutput:
+    def __init__(self, serial_channel: SerialChannel, index: int, value: bool) -> None:
+        self.serial_channel = serial_channel
+        self.index = index
+        self._value = value
+
+    def _update(self):
+        if self._value:
+            pin_value = 1
+        else:
+            pin_value = 0
+
+        self.serial_channel.send("write digital {pin} {value}".format(
+            pin=self.index,
+            value=pin_value,
+        ))
+
+    @property
+    def value(self) -> bool:
+        return self._value
+
+    @value.setter
+    def value(self, value: bool):
+        self._value = value
+        self._update()
+
+
+class AnalogInput:
+    def __init__(self, serial_channel: SerialChannel, index: int) -> None:
+        self.serial_channel = serial_channel
+        self.index = index
+
+    @property
+    def value(self) -> float:
+        self.serial_channel.send("read analog {0}".format(self.index))
+
+        if not debug:
+            result = self.serial_channel.read()
+            result = result.split("=")[1]
+        else:
+            result = 0.25
+
+        return float(result)
+
+
+class Actuator:
+    MAXIMUM_POSITION_ERROR = 0.001
+    MAXIMUM_VELOCITY_ERROR = 0.001
+
+    def __init__(self, channel: SerialChannel, index: int, min_value: float, max_value: float):
+        self.index = index
+        self.channel = channel
+        self.min_value = min_value
+        self.max_value = max_value
+        self.previous_position = self.position
+        self.target_position = self.position
+
+    @property
+    def position(self) -> float:
+        width = self.max_value - self.min_value
+        value = self.channel.analog_inputs[self.index].value - self.min_value
+        return value / width
+
+    @position.setter
+    def position(self, value: float):
+        self.target_position = value
+
+    @property
+    def reverse(self):
+        return self.channel.digital_outputs[self.index].value
+
+    @reverse.setter
+    def reverse(self, value):
+        self.channel.digital_outputs[self.index].value = value
+
+    @property
+    def duty_cycle(self):
+        return self.channel.pwm_outputs[self.index].duty_cycle
+
+    @duty_cycle.setter
+    def duty_cycle(self, value):
+        self.channel.pwm_outputs[self.index].duty_cycle = value
+
+    @property
+    def stalled(self):
+        return False
+
+    def update(self, frame_time_s: float):
+        position_delta = self.target_position - self.position
+
+        # Don't bother moving if we're close to the target position
+        if abs(position_delta) > Actuator.MAXIMUM_POSITION_ERROR:
+            target_velocity = sqrt(1 + abs(position_delta)) - 1
+            velocity_delta = target_velocity - self.duty_cycle
+
+            target_velocity_delta = sqrt(1 + abs(velocity_delta)) - 1
+
+            # Don't bother adjusting speed if we're close to the target speed
+            if target_velocity_delta > Actuator.MAXIMUM_VELOCITY_ERROR:
+                self.duty_cycle += target_velocity_delta * frame_time_s
+                self.reverse = position_delta >= 0
+        else:
+            self.duty_cycle = 0
+            self.reverse = False
+
+
+class ActuatorController:
+    target_framerate = 60
+
+    def __init__(self) -> None:
+        self.channel = SerialChannel(0.5, 1/10000)
+        self.actuators = [Actuator(self.channel, i, 0, 1) for i in range(4)]
+
+        self.running = True
+        self.thread = threading.Thread(target=lambda: self.updater_thread())
+        self.thread.start()
+
+    def updater_thread(self):
+        clock = Clock()
+
+        while self.running:
+            frame_time_ms = clock.tick(ActuatorController.target_framerate)
+            frame_time_s = frame_time_ms / 1000
+
+            for actuator in self.actuators:
+                actuator.update(frame_time_s)
+
+    def quit(self):
+        self.running = False
+        self.channel.running = False

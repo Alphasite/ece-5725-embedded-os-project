@@ -119,3 +119,183 @@ class ModalButton(Entity):
             self.active_button.interact(loop, interact_point)
         else:
             self.disabled_button.interact(loop, interact_point)
+
+
+class Slider(Entity):
+    TRI_SIZE = 6
+
+    def __init__(self, initial_position: float, height: float, center: point, bar_colour: colour, tri_colour: colour) -> None:
+        self.__position = 0
+        self.position = initial_position
+        self.center = center
+        self.height = height
+        self.width = 1.5
+        self.bar_colour = bar_colour
+        self.tri_colour = tri_colour
+
+        self.rail = pygame.Rect(
+            center[0] - self.width,
+            center[1] - self.height / 2,
+            self.width,
+            self.height
+        )
+
+        self.dragging = False
+
+    @property
+    def position(self):
+        return self.__position
+
+    @position.setter
+    def position(self, value):
+        if value > 1:
+            value = 1
+
+        if value < 0:
+            value = 0
+
+        self.__position = 1 - value
+
+    def __compute_position(self, percentage: float):
+        return (
+            self.center[0],
+            self.rail.top + self.height * percentage
+        )
+
+    @property
+    def rect(self):
+        center = self.__compute_position(self.position)
+
+        return pygame.Rect(
+            center[0],
+            center[1] - Slider.TRI_SIZE / 2,
+            center[0] + Slider.TRI_SIZE,
+            center[1] + Slider.TRI_SIZE / 2,
+        )
+
+    def interact(self, loop: 'RunLoop', interact_point: 'point'):
+        self.dragging = False
+
+    def drag(self, loop: 'RunLoop', start_point: 'point', current_point: 'point'):
+        rect = self.rect.inflate(10, 10)
+
+        if rect.collidepoint(*current_point):
+            self.dragging = True
+
+        if self.dragging:
+            dy = current_point[1] - self.rail.top
+            self.position = dy / self.height
+
+    def draw(self, screen):
+        position = self.__compute_position(1 - self.position)
+
+        points = [
+            (position[0], position[1] - Slider.TRI_SIZE),
+            (position[0] + Slider.TRI_SIZE, position[1]),
+            (position[0], position[1] + Slider.TRI_SIZE),
+        ]
+
+        pygame.draw.rect(screen, self.bar_colour, self.rail)
+        pygame.draw.polygon(screen, self.tri_colour, points)
+
+
+class ProgressBar(Entity):
+    def __init__(self, initial_position: float, height: float, width: float, center: point, colour: colour) -> None:
+        self.__position = 0
+        self.position = initial_position
+        self.center = center
+        self.height = height
+        self.width = width
+        self.colour = colour
+
+        self.rail = pygame.Rect(
+            center[0] - self.width / 2,
+            center[1] - self.height / 2,
+            self.width,
+            self.height
+        )
+
+        self.dragging = False
+
+    @property
+    def position(self):
+        return self.__position
+
+    @position.setter
+    def position(self, value):
+        if value > 1:
+            value = 1
+
+        if value < 0:
+            value = 0
+
+        self.__position = value
+
+    def __compute_position(self, percentage: float):
+        return (
+            self.center[0],
+            self.rail.top + self.height * (1 - percentage)
+        )
+
+    def interact(self, loop: 'RunLoop', interact_point: 'point'):
+        self.dragging = False
+
+    def draw(self, screen):
+        position = self.__compute_position(self.position)
+        filled_rect = pygame.Rect(position, (self.width, self.height * self.position))
+
+        pygame.draw.rect(screen, self.colour, filled_rect)
+
+
+class LinkedProgressSlider(Entity):
+    def __init__(self, initial_position: float, height: float, width: float, center: point, bar_colour: colour, tri_colour: colour) -> None:
+        self.bar = ProgressBar(initial_position, height, width, center, bar_colour)
+        self.slider = Slider(initial_position, height, center, bar_colour, tri_colour)
+
+    @property
+    def position(self):
+        return self.slider.position
+
+    @position.setter
+    def position(self, value):
+        self.bar.position = value
+
+    def drag(self, loop: 'RunLoop', start_point: 'point', current_point: 'point'):
+        self.slider.drag(loop, start_point, current_point)
+
+    def interact(self, loop: 'RunLoop', interact_point: 'point'):
+        self.slider.interact(loop, interact_point)
+
+    def draw(self, screen):
+        self.bar.draw(screen)
+        self.slider.draw(screen)
+
+
+class Sprite(Entity):
+    def __init__(self, path: str, center: point, width: float, height: float) -> None:
+        self.texture = pygame.image.load(path)
+        self.texture = pygame.transform.scale(self.texture, (width, height))
+        self.rect = self.texture.get_rect()
+        self.rect = self.rect.move(*center)
+        self.enabled = True
+
+    def draw(self, screen):
+        screen.blit(self.texture, self.rect)
+
+
+class StatusPip(Entity):
+    def __init__(self, center: point, radius: float, colour: colour) -> None:
+        self.center = center
+        self.radius = radius
+        self.colour = colour
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, self.colour, self.center, self.radius)
+
+
+class FrameUpdateEvent(Entity):
+    def __init__(self, handler: callable) -> None:
+        self.handler = handler
+
+    def update(self, loop: 'RunLoop', time_delta: float):
+        self.handler(loop, time_delta)

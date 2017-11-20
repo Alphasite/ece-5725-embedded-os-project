@@ -44,15 +44,33 @@ class RunLoop:
     def start_loop(self, entities):
         clock = Clock()
 
+        previous_mouse_down = None
+
         while not self.done:
             for event in pygame.event.get():
                 if event.type is pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
+                    previous_mouse_down = None
 
                     print("Mouse Up:", event.type, pos)
 
                     for entity in entities:
                         entity.interact(self, pos)
+
+                if event.type is pygame.MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    previous_mouse_down = pos
+
+                    print("Mouse Down:", event.type, pos)
+
+                if event.type is pygame.MOUSEMOTION:
+                    pos = pygame.mouse.get_pos()
+
+                    # print("Mouse Move:", event.type, pos)
+
+                    for entity in entities:
+                        if previous_mouse_down is not None:
+                            entity.drag(self, previous_mouse_down, pos)
 
                 if event.type == pygame.QUIT:
                     self.done = True
