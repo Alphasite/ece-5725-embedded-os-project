@@ -111,12 +111,12 @@ class PWMOutput:
         self._duty_cycle = duty_cycle
 
     def _update(self):
-        self.serial_channel.send("/pwm{pin}/{period}".format(
+        self.serial_channel.send("/pwm{pin}/period {period}".format(
             pin=self.index,
             period=self._period,
         ))
 
-        self.serial_channel.send("/pwm{pin}/{duty}".format(
+        self.serial_channel.send("/pwm{pin}/write {duty}".format(
             pin=self.index,
             duty=self._duty_cycle
         ))
