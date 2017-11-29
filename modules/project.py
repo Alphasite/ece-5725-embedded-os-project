@@ -99,6 +99,6 @@ def gui(settings, **kwargs) -> bool:
 
 
 MODULE = {
-    "serial": serial,
+    "serial": serial_input,
     "gui": gui
 }
