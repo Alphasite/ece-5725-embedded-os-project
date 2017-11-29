@@ -12,10 +12,11 @@ Lab 4, Lab Section 02, 01/11/17
 """
 import time
 
-if "DEBUG" in os.environ:
-    debug = True
-else:
-    debug = False
+# if "DEBUG" in os.environ:
+#     debug = True
+# else:
+#     debug = False
+debug = False
 
 
 def serial_input(settings, **kwargs):
@@ -31,7 +32,7 @@ def serial_input(settings, **kwargs):
 
 def gui(settings, **kwargs) -> bool:
     loop = RunLoop()
-    controller = ActuatorController()
+    controller = ActuatorController("/dev/tty.usbmodem14322")
 
     def exit_loop(loop: RunLoop):
         loop.done = True

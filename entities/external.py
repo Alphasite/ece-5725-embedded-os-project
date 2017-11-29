@@ -18,11 +18,11 @@ except ImportError:
 
 import serial
 
-if "DEBUG" in os.environ:
-    debug = True
-else:
-    debug = False
-
+# if "DEBUG" in os.environ:
+#     debug = True
+# else:
+#     debug = False
+debug = False
 
 class Servo:
     zero_pulse_width = 1.5
@@ -69,9 +69,9 @@ class Servo:
 
 
 class SerialChannel:
-    def __init__(self, pwm_duty_cycle: float, pwm_period: float) -> None:
+    def __init__(self, serial_path: str, pwm_duty_cycle: float, pwm_period: float) -> None:
         if not debug:
-            self.serial = serial.Serial('/dev/ttyUSB0', 9600)
+            self.serial = serial.Serial(serial_path, 9600, timeout=1)
         else:
             self.serial = None
 
@@ -79,47 +79,28 @@ class SerialChannel:
         self.digital_outputs = [DigitalOutput(self, i, False) for i in range(4)]
         self.analog_inputs = [AnalogInput(self, i) for i in range(4)]
 
+        self.lock = threading.RLock()
+
         self.inputs = Queue()
 
-        self.running = True
-        self.thread = threading.Thread(target=lambda: self.read_thread())
-        self.thread.start()
-
-    def send(self, string: str):
-        if not "read" in string:
+    def send(self, string: str) -> str:
+        with self.lock:
             print("Request:", string)
 
-        string += "\n"
-        string = string.encode('ascii')
+            if debug:
+                return
 
-        if not debug:
+            string += "\n"
+            string = string.encode('ascii')
             self.serial.write(string)
 
-    def read_thread(self):
-        while self.running:
+            serial.time.sleep(0.002)
 
-            result = self._read()
+            response = self.serial.readline().decode().strip()
 
-            if result.startswith("log:"):
-                print(result)
-            else:
-                # print("Response:", result)
-                self.inputs.put(result)
+            print("Response:", response)
 
-    def _read(self) -> str:
-        if debug:
-            return "DEBUG"
-
-        while self.running:
-            line = self.serial.read_until()
-            line = line.decode("ascii")
-            line = line.strip()
-
-            if len(line) > 0:
-                return line
-
-    def read(self) -> str:
-        return self.inputs.get()
+            return response
 
 
 class PWMOutput:
@@ -130,9 +111,13 @@ class PWMOutput:
         self._duty_cycle = duty_cycle
 
     def _update(self):
-        self.serial_channel.send("write pwm {pin} {period} {duty}".format(
+        self.serial_channel.send("/pwm{pin}/{period}".format(
             pin=self.index,
             period=self._period,
+        ))
+
+        self.serial_channel.send("/pwm{pin}/{duty}".format(
+            pin=self.index,
             duty=self._duty_cycle
         ))
 
@@ -167,7 +152,7 @@ class DigitalOutput:
         else:
             pin_value = 0
 
-        self.serial_channel.send("write digital {pin} {value}".format(
+        self.serial_channel.send("/digital{pin}/write {value}".format(
             pin=self.index,
             value=pin_value,
         ))
@@ -189,13 +174,11 @@ class AnalogInput:
 
     @property
     def value(self) -> float:
-        self.serial_channel.send("read analog {0}".format(self.index))
+        result = ''
 
-        if not debug:
-            result = self.serial_channel.read()
-            result = result.split("=")[1]
-        else:
-            result = 0.25
+        with self.serial_channel.lock:
+            while len(result) == 0:
+                result = self.serial_channel.send("/analog{0}/read".format(self.index))
 
         return float(result)
 
@@ -253,7 +236,7 @@ class Actuator:
             target_velocity_delta = sqrt(1 + abs(velocity_delta)) - 1
 
             # Don't bother adjusting speed if we're close to the target speed
-            if target_velocity_delta > Actuator.MAXIMUM_VELOCITY_ERROR:
+            if abs(target_velocity_delta) > Actuator.MAXIMUM_VELOCITY_ERROR:
                 self.duty_cycle += target_velocity_delta * frame_time_s
                 self.reverse = position_delta >= 0
         else:
@@ -264,8 +247,8 @@ class Actuator:
 class ActuatorController:
     target_framerate = 60
 
-    def __init__(self) -> None:
-        self.channel = SerialChannel(0.5, 1/10000)
+    def __init__(self, serial_path: str) -> None:
+        self.channel = SerialChannel(serial_path, 0.5, 1/10000)
         self.actuators = [Actuator(self.channel, i, 0, 1) for i in range(4)]
 
         self.running = True
@@ -284,4 +267,3 @@ class ActuatorController:
 
     def quit(self):
         self.running = False
-        self.channel.running = False
