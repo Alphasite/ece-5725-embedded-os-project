@@ -5,7 +5,7 @@ Lab 3, Lab Section 02, 17/10/17
 import threading
 from queue import Queue
 
-from math import sqrt
+from math import sqrt, copysign
 
 import os
 from pygame.time import Clock
@@ -230,15 +230,22 @@ class Actuator:
 
         # Don't bother moving if we're close to the target position
         if abs(position_delta) > Actuator.MAXIMUM_POSITION_ERROR:
-            target_velocity = sqrt(1 + abs(position_delta)) - 1
+            target_velocity = copysign(sqrt(1 + abs(position_delta)) - 1, position_delta)
             velocity_delta = target_velocity - self.duty_cycle
 
-            target_velocity_delta = sqrt(1 + abs(velocity_delta)) - 1
+            target_velocity_delta = copysign(sqrt(1 + abs(velocity_delta)) - 1, velocity_delta)
 
             # Don't bother adjusting speed if we're close to the target speed
             if abs(target_velocity_delta) > Actuator.MAXIMUM_VELOCITY_ERROR:
                 self.duty_cycle += target_velocity_delta * frame_time_s
                 self.reverse = position_delta >= 0
+
+                print("Target p:", position_delta)
+                print("Actual p:", self.position)
+                print("Target v:", target_velocity)
+                print("Actual v:", self.duty_cycle)
+                print("Target d:", target_velocity_delta)
+
         else:
             self.duty_cycle = 0
             self.reverse = False

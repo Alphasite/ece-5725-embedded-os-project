@@ -177,7 +177,7 @@ class Slider(Entity):
         self.dragging = False
 
     def drag(self, loop: 'RunLoop', start_point: 'point', current_point: 'point'):
-        rect = self.rect.inflate(10, 10)
+        rect = self.rect.inflate(20, 20)
 
         if rect.collidepoint(*current_point):
             self.dragging = True
