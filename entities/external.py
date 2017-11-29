@@ -248,7 +248,7 @@ class ActuatorController:
     target_framerate = 60
 
     def __init__(self, serial_path: str) -> None:
-        self.channel = SerialChannel(serial_path, 0.5, 1/10000)
+        self.channel = SerialChannel(serial_path, 0.5, 1/200)
         self.actuators = [Actuator(self.channel, i, 0, 1) for i in range(4)]
 
         self.running = True
