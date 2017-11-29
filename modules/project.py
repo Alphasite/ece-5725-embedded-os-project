@@ -34,7 +34,7 @@ def gui(settings, arguments, **kwargs) -> bool:
     serial_path = "/dev/tty.usbmodem14322" if len(arguments) == 0 else arguments[0]
 
     loop = RunLoop()
-    controller = ActuatorController(serial_pathgit zd)
+    controller = ActuatorController(serial_path)
 
     def exit_loop(loop: RunLoop):
         loop.done = True
