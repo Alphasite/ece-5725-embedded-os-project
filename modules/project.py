@@ -30,9 +30,11 @@ def serial_input(settings, **kwargs):
         time.sleep(2)
 
 
-def gui(settings, **kwargs) -> bool:
+def gui(settings, arguments, **kwargs) -> bool:
+    serial_path = "/dev/tty.usbmodem14322" if len(arguments) == 0 else arguments[0]
+
     loop = RunLoop()
-    controller = ActuatorController("/dev/tty.usbmodem14322")
+    controller = ActuatorController(serial_pathgit zd)
 
     def exit_loop(loop: RunLoop):
         loop.done = True
