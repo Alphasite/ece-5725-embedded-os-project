@@ -224,14 +224,14 @@ class Actuator(object):
 
         # Don't bother moving if we're close to the target position
         if abs(position_delta) > Actuator.MAXIMUM_POSITION_ERROR and not self.stopped:
-            target_velocity = min((position_delta * 5) ** 2, 1)
+            target_velocity = min((position_delta * 6) ** 2, 1)
             velocity_delta = target_velocity - self.duty_cycle
 
             target_velocity_delta = velocity_delta
 
             # Don't bother adjusting speed if we're close to the target speed
             if abs(target_velocity_delta) > Actuator.MAXIMUM_VELOCITY_ERROR:
-                self.duty_cycle += target_velocity_delta * frame_time_s
+                self.duty_cycle += target_velocity_delta * (frame_time_s * 2)
                 self.reverse = position_delta >= 0
 
                 # print("Target p:", self.target_position)

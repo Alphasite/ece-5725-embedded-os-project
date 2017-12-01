@@ -103,7 +103,9 @@ def gui(settings, arguments, **kwargs):
                 pip.colour = green
 
         duty_cycle = controller.actuators[0].duty_cycle
-        labels[4].text = "{0:0.2f}".format(duty_cycle)
+        reverse = controller.actuators[0].reverse
+
+        labels[4].text = "{0:0.2f} R:{1}".format(duty_cycle, str(reverse)[0])
 
     entities = []
     entities += labels
