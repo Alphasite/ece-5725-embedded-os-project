@@ -5,7 +5,7 @@ Lab 3, Lab Section 02, 17/10/17
 import threading
 from queue import Queue
 
-from math import sqrt, copysign
+from math import sqrt, copysign, log
 
 import os
 from pygame.time import Clock
@@ -85,7 +85,7 @@ class SerialChannel:
 
     def send(self, string: str) -> str:
         with self.lock:
-            print("Request:", string)
+            # print("Request:", string)
 
             if debug:
                 return
@@ -98,7 +98,7 @@ class SerialChannel:
 
             response = self.serial.readline().decode().strip()
 
-            print("Response:", response)
+            # print("Response:", response)
 
             return response
 
@@ -184,8 +184,8 @@ class AnalogInput:
 
 
 class Actuator:
-    MAXIMUM_POSITION_ERROR = 0.001
-    MAXIMUM_VELOCITY_ERROR = 0.001
+    MAXIMUM_POSITION_ERROR = 0.002
+    MAXIMUM_VELOCITY_ERROR = 0.002
 
     def __init__(self, channel: SerialChannel, index: int, min_value: float, max_value: float):
         self.index = index
@@ -194,6 +194,7 @@ class Actuator:
         self.max_value = max_value
         self.previous_position = self.position
         self.target_position = self.position
+        self.stopped = True
 
     @property
     def position(self) -> float:
@@ -229,22 +230,22 @@ class Actuator:
         position_delta = self.target_position - self.position
 
         # Don't bother moving if we're close to the target position
-        if abs(position_delta) > Actuator.MAXIMUM_POSITION_ERROR:
-            target_velocity = copysign(sqrt(1 + abs(position_delta)) - 1, position_delta)
+        if abs(position_delta) > Actuator.MAXIMUM_POSITION_ERROR and not self.stopped:
+            target_velocity = min((position_delta * 5) ** 2, 1)
             velocity_delta = target_velocity - self.duty_cycle
 
-            target_velocity_delta = copysign(sqrt(1 + abs(velocity_delta)) - 1, velocity_delta)
+            target_velocity_delta = velocity_delta
 
             # Don't bother adjusting speed if we're close to the target speed
             if abs(target_velocity_delta) > Actuator.MAXIMUM_VELOCITY_ERROR:
                 self.duty_cycle += target_velocity_delta * frame_time_s
                 self.reverse = position_delta >= 0
 
-                print("Target p:", position_delta)
-                print("Actual p:", self.position)
-                print("Target v:", target_velocity)
-                print("Actual v:", self.duty_cycle)
-                print("Target d:", target_velocity_delta)
+                # print("Target p:", self.target_position)
+                # print("Actual p:", self.position)
+                # print("Target v:", target_velocity)
+                # print("Actual v:", self.duty_cycle)
+                # print("Target d:", target_velocity_delta)
 
         else:
             self.duty_cycle = 0
@@ -252,7 +253,7 @@ class Actuator:
 
 
 class ActuatorController:
-    target_framerate = 60
+    target_framerate = 30
 
     def __init__(self, serial_path: str) -> None:
         self.channel = SerialChannel(serial_path, 0.5, 1/200)

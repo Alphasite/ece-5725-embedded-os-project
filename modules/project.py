@@ -40,8 +40,18 @@ def gui(settings, arguments, **kwargs) -> bool:
         loop.done = True
         controller.quit()
 
-    modal_active_button = Button((120, 210), "Stop", lambda x: print("pause"), background_colour=red, text_size=30)
-    modal_disabled_button = Button((120, 210), "Start", lambda x: print("resume"), background_colour=green, text_size=30)
+    def stop_button(loop:RunLoop):
+        print("Stop")
+        for actuator in controller.actuators:
+            actuator.stopped = True
+
+    def start_button(loop:RunLoop):
+        print("Start")
+        for actuator in controller.actuators:
+            actuator.stopped = False
+
+    modal_active_button = Button((120, 210), "Stop", stop_button, background_colour=red, text_size=30)
+    modal_disabled_button = Button((120, 210), "Start", start_button, background_colour=green, text_size=30)
 
     buttons = [
         ModalButton(modal_disabled_button, modal_active_button),
@@ -53,6 +63,7 @@ def gui(settings, arguments, **kwargs) -> bool:
         Label((120, 20), "Servo 2"),
         Label((200, 20), "Servo 3"),
         Label((280, 20), "Servo 4"),
+        Label((40, 220), "PWM"),
     ]
 
     bar_colour = (40, 40, 40)
@@ -74,7 +85,7 @@ def gui(settings, arguments, **kwargs) -> bool:
 
     def update_frame(loop: 'RunLoop', time_delta: float):
         # link slider target/actual with actuator target/actual
-        for i in range(4):
+        for i in range(1): # TODO
             actuator = controller.actuators[i]
             control = controls[i]
             pip = status[i]
@@ -87,6 +98,8 @@ def gui(settings, arguments, **kwargs) -> bool:
             else:
                 pip.colour = green
 
+        labels[4].text = "{0:0.2f}".format(controller.actuators[0].duty_cycle)
+
     entities = [
         *labels,
         *buttons,
@@ -95,6 +108,7 @@ def gui(settings, arguments, **kwargs) -> bool:
         FrameUpdateEvent(update_frame)
     ]
 
+    stop_button(loop)
     loop.start_loop(entities)
 
     return True

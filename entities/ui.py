@@ -164,14 +164,15 @@ class Slider(Entity):
 
     @property
     def rect(self):
-        center = self.__compute_position(self.position)
-
-        return pygame.Rect(
-            center[0],
-            center[1] - Slider.TRI_SIZE / 2,
-            center[0] + Slider.TRI_SIZE,
-            center[1] + Slider.TRI_SIZE / 2,
-        )
+        # center = self.__compute_position(self.position)
+        #
+        # return pygame.Rect(
+        #     center[0],
+        #     center[1] - Slider.TRI_SIZE / 2,
+        #     center[0] + Slider.TRI_SIZE,
+        #     center[1] + Slider.TRI_SIZE / 2,
+        # )
+        return self.rail.inflate(20, 20)
 
     def interact(self, loop: 'RunLoop', interact_point: 'point'):
         self.dragging = False
