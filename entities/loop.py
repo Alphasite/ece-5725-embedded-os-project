@@ -3,15 +3,20 @@ Nishad Mathur (nm594) & Adam Halverson (abh222)
 Lab 3, Lab Section 02, 17/10/17
 """
 
+from __future__ import division, print_function
+import time
 import os
 import pygame
 from pygame.time import Clock
-from concurrent.futures import ThreadPoolExecutor
+
+try:
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 
 try:
     import RPi.GPIO as GPIO
 except ImportError:
-    from unittest.mock import Mock
     GPIO = Mock()
 
 from entities import black
@@ -30,8 +35,8 @@ def setup_for_pi():
     # pygame.mouse.set_visible(False)
 
 
-class RunLoop:
-    def __init__(self) -> None:
+class RunLoop(object):
+    def __init__(self):
         self.done = False
         self.previous_mouse_down = None
 
@@ -46,38 +51,49 @@ class RunLoop:
     def start_loop(self, entities):
         clock = Clock()
 
-        pool = ThreadPoolExecutor()
+        previous_time = time.time()
 
         while not self.done:
-            frame_time_ms = clock.tick(target_framerate)
-            frame_time_s = frame_time_ms / 1000
+            # frame_time_ms = clock.tick(target_framerate)
+            # frame_time_s = frame_time_ms / 1000
 
-            pos = pygame.mouse.get_pos()
+            # time.sleep(1.0 / target_framerate)
+
+            current_time = time.time()
+            frame_time_s = current_time - previous_time
+            previous_time = current_time
+
+            # print("Frametime (render):", frame_time_s)
 
             for event in list(pygame.event.get()):
-                def event_handler_thread():
-                    if event.type is pygame.MOUSEBUTTONUP:
-                        print("Mouse Up:", event.type, pos)
+                if event.type is pygame.MOUSEBUTTONUP:
+                    pos = event.pos
 
-                        self.previous_mouse_down = None
+                    print("Mouse Up:", event.type, pos)
 
-                        for entity in entities:
-                            entity.interact(self, pos)
+                    self.previous_mouse_down = None
 
-                    if event.type is pygame.MOUSEBUTTONDOWN:
-                        print("Mouse Down:", event.type, pos)
+                    for entity in entities:
+                        entity.interact(self, pos)
 
-                        self.previous_mouse_down = pos
+                if event.type is pygame.MOUSEBUTTONDOWN:
+                    pos = event.pos
 
-                    if event.type is pygame.MOUSEMOTION:
-                        for entity in entities:
-                            if self.previous_mouse_down is not None:
-                                entity.drag(self, self.previous_mouse_down, pos)
+                    print("Mouse Down:", event.type, pos)
 
-                    if event.type == pygame.QUIT:
-                        self.done = True
+                    self.previous_mouse_down = pos
 
-                pool.submit(event_handler_thread)
+                if event.type is pygame.MOUSEMOTION:
+                    pos = event.pos
+
+                    # print("Mouse move:", event.type, pos)
+
+                for entity in entities:
+                        if self.previous_mouse_down is not None:
+                            entity.drag(self, self.previous_mouse_down, pos)
+
+                if event.type == pygame.QUIT:
+                    self.done = True
 
             for entity in entities:
                 entity.update(self, frame_time_s)

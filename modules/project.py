@@ -1,21 +1,25 @@
+from __future__ import division, print_function
 import os
 import serial
+import sys
 
 from entities import red, green
 from entities.external import ActuatorController
 from entities.loop import RunLoop
-from entities.ui import Slider, Label, Button, ModalButton, LinkedProgressSlider, StatusPip, FrameUpdateEvent
+from entities.ui import Label, Button, ModalButton, LinkedProgressSlider, StatusPip, FrameUpdateEvent
 
 """
 Nishad Mathur (nm594) & Adam Halverson (abh222)
 Lab 4, Lab Section 02, 01/11/17
 """
+
 import time
 
-# if "DEBUG" in os.environ:
-#     debug = True
-# else:
-#     debug = False
+if "DEBUG" in os.environ:
+    debug = True
+else:
+    debug = False
+
 debug = False
 
 
@@ -30,22 +34,22 @@ def serial_input(settings, **kwargs):
         time.sleep(2)
 
 
-def gui(settings, arguments, **kwargs) -> bool:
+def gui(settings, arguments, **kwargs):
     serial_path = "/dev/tty.usbmodem14322" if len(arguments) == 0 else arguments[0]
 
     loop = RunLoop()
     controller = ActuatorController(serial_path)
 
-    def exit_loop(loop: RunLoop):
+    def exit_loop(loop):
         loop.done = True
         controller.quit()
 
-    def stop_button(loop:RunLoop):
+    def stop_button(loop):
         print("Stop")
         for actuator in controller.actuators:
             actuator.stopped = True
 
-    def start_button(loop:RunLoop):
+    def start_button(loop):
         print("Start")
         for actuator in controller.actuators:
             actuator.stopped = False
@@ -59,7 +63,7 @@ def gui(settings, arguments, **kwargs) -> bool:
     ]
 
     labels = [
-        Label(( 40, 20), "Servo 1"),
+        Label((40, 20), "Servo 1"),
         Label((120, 20), "Servo 2"),
         Label((200, 20), "Servo 3"),
         Label((280, 20), "Servo 4"),
@@ -70,45 +74,49 @@ def gui(settings, arguments, **kwargs) -> bool:
     tri_colour = (10, 200, 10)
 
     controls = [
-        LinkedProgressSlider(0.5, 100, 10, ( 40, 120), bar_colour, tri_colour),
+        LinkedProgressSlider(0.5, 100, 10, (40, 120), bar_colour, tri_colour),
         LinkedProgressSlider(0.5, 100, 10, (120, 120), bar_colour, tri_colour),
         LinkedProgressSlider(0.5, 100, 10, (200, 120), bar_colour, tri_colour),
         LinkedProgressSlider(0.5, 100, 10, (280, 120), bar_colour, tri_colour)
     ]
 
     status = [
-        StatusPip(( 40, 45), 8, green),
+        StatusPip((40, 45), 8, green),
         StatusPip((120, 45), 8, green),
         StatusPip((200, 45), 8, red),
         StatusPip((280, 45), 8, red),
     ]
 
-    def update_frame(loop: 'RunLoop', time_delta: float):
+    def update_frame(loop, time_delta):
         # link slider target/actual with actuator target/actual
-        for i in range(1): # TODO
+        for i in range(4):  # TODO
             actuator = controller.actuators[i]
             control = controls[i]
             pip = status[i]
 
-            actuator.position = control.position
-            control.position = actuator.position
+            actuator.target_position = control.slider.position
+            control.bar.position = actuator.position
 
             if actuator.stalled:
                 pip.colour = red
             else:
                 pip.colour = green
 
-        labels[4].text = "{0:0.2f}".format(controller.actuators[0].duty_cycle)
+        duty_cycle = controller.actuators[0].duty_cycle
+        labels[4].text = "{0:0.2f}".format(duty_cycle)
 
-    entities = [
-        *labels,
-        *buttons,
-        *controls,
-        *status,
-        FrameUpdateEvent(update_frame)
-    ]
+    entities = []
+    entities += labels
+    entities += buttons
+    entities += controls
+    entities += status
+    entities.append(FrameUpdateEvent(update_frame))
 
     stop_button(loop)
+
+    sys.setcheckinterval(0)
+
+    controller.start()
     loop.start_loop(entities)
 
     return True

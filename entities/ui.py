@@ -3,18 +3,18 @@ Nishad Mathur (nm594) & Adam Halverson (abh222)
 Lab 3, Lab Section 02, 17/10/17
 """
 
+from __future__ import division, print_function
+
 from datetime import timedelta, datetime
-from typing import Optional
 
 import pygame
 
-from entities import white, point, colour
+from entities import white
 from entities.entity import Entity
-from entities.loop import RunLoop
 
 
 class Debouncer:
-    def __init__(self, wait_time: timedelta = timedelta(milliseconds=100)) -> None:
+    def __init__(self, wait_time=timedelta(milliseconds=100)):
         self.wait_time = wait_time
         self.time = datetime.now()
 
@@ -32,8 +32,7 @@ class Debouncer:
 
 
 class Button(Entity):
-    def __init__(self, center: point, text: str, action: callable, background_colour: Optional[colour] = None,
-                 text_size: int = 25, debouncer: Debouncer = Debouncer()):
+    def __init__(self, center, text, action, background_colour=None, text_size=25, debouncer=Debouncer()):
         self.action = action
         self.label = Label(center, text, background_colour=background_colour, text_size=text_size)
         self.debouncer = debouncer
@@ -41,21 +40,14 @@ class Button(Entity):
     def draw(self, screen):
         self.label.draw(screen)
 
-    def interact(self, loop: RunLoop, interact_point: point):
+    def interact(self, loop, interact_point):
         if self.label.background_rect.collidepoint(interact_point):
             if self.debouncer.try_press():
                 self.action(loop)
 
 
 class Label(Entity):
-    def __init__(
-            self,
-            center: point,
-            text: str,
-            text_colour: colour = white,
-            background_colour: Optional[colour] = None,
-            text_size: int = 25
-    ):
+    def __init__(self, center, text, text_colour=white, background_colour=None, text_size=25):
         self.font = pygame.font.Font(None, text_size)
         self.center = center
         self.colour = text_colour
@@ -68,12 +60,6 @@ class Label(Entity):
         self._text = None
         self.text = text
 
-    def draw(self, screen):
-        if self.background_colour is not None:
-            pygame.draw.rect(screen, self.background_colour, self.background_rect)
-
-        screen.blit(self.surface, self.rect)
-
     @property
     def text(self):
         return self._text
@@ -85,14 +71,20 @@ class Label(Entity):
         self.rect = self.surface.get_rect(center=self.center)
         self.background_rect = self.rect.inflate(10, 10)
 
+    def draw(self, screen):
+        if self.background_colour is not None:
+            pygame.draw.rect(screen, self.background_colour, self.background_rect)
+
+        screen.blit(self.surface, self.rect)
+
 
 class ModalButton(Entity):
-    def __init__(self, active_button: Button, disabled_button: Button, debouncer: Debouncer = Debouncer()):
+    def __init__(self, active_button, disabled_button, debouncer=Debouncer()):
         self.debouncer = debouncer
 
         # Wrap the action to first swap the button before performing the action
         def swap_button_wrapper(action):
-            def swap_button(loop: RunLoop):
+            def swap_button(loop):
                 self.use_active_button = not self.use_active_button
                 action(loop)
 
@@ -114,7 +106,7 @@ class ModalButton(Entity):
         else:
             self.disabled_button.draw(screen)
 
-    def interact(self, loop: RunLoop, interact_point: point):
+    def interact(self, loop, interact_point):
         if self.use_active_button:
             self.active_button.interact(loop, interact_point)
         else:
@@ -124,7 +116,7 @@ class ModalButton(Entity):
 class Slider(Entity):
     TRI_SIZE = 6
 
-    def __init__(self, initial_position: float, height: float, center: point, bar_colour: colour, tri_colour: colour) -> None:
+    def __init__(self, initial_position, height, center, bar_colour, tri_colour):
         self.__position = 0
         self.position = initial_position
         self.center = center
@@ -156,7 +148,7 @@ class Slider(Entity):
 
         self.__position = 1 - value
 
-    def __compute_position(self, percentage: float):
+    def __compute_position(self, percentage):
         return (
             self.center[0],
             self.rail.top + self.height * percentage
@@ -174,10 +166,10 @@ class Slider(Entity):
         # )
         return self.rail.inflate(20, 20)
 
-    def interact(self, loop: 'RunLoop', interact_point: 'point'):
+    def interact(self, loop, interact_point):
         self.dragging = False
 
-    def drag(self, loop: 'RunLoop', start_point: 'point', current_point: 'point'):
+    def drag(self, loop, start_point, current_point):
         rect = self.rect.inflate(20, 20)
 
         if rect.collidepoint(*current_point):
@@ -201,7 +193,7 @@ class Slider(Entity):
 
 
 class ProgressBar(Entity):
-    def __init__(self, initial_position: float, height: float, width: float, center: point, colour: colour) -> None:
+    def __init__(self, initial_position, height, width, center, colour):
         self.__position = 0
         self.position = initial_position
         self.center = center
@@ -232,13 +224,13 @@ class ProgressBar(Entity):
 
         self.__position = value
 
-    def __compute_position(self, percentage: float):
+    def __compute_position(self, percentage):
         return (
             self.center[0],
             self.rail.top + self.height * (1 - percentage)
         )
 
-    def interact(self, loop: 'RunLoop', interact_point: 'point'):
+    def interact(self, loop, interact_point):
         self.dragging = False
 
     def draw(self, screen):
@@ -249,7 +241,7 @@ class ProgressBar(Entity):
 
 
 class LinkedProgressSlider(Entity):
-    def __init__(self, initial_position: float, height: float, width: float, center: point, bar_colour: colour, tri_colour: colour) -> None:
+    def __init__(self, initial_position, height, width, center, bar_colour, tri_colour):
         self.bar = ProgressBar(initial_position, height, width, center, bar_colour)
         self.slider = Slider(initial_position, height, center, bar_colour, tri_colour)
 
@@ -261,10 +253,10 @@ class LinkedProgressSlider(Entity):
     def position(self, value):
         self.bar.position = value
 
-    def drag(self, loop: 'RunLoop', start_point: 'point', current_point: 'point'):
+    def drag(self, loop, start_point, current_point):
         self.slider.drag(loop, start_point, current_point)
 
-    def interact(self, loop: 'RunLoop', interact_point: 'point'):
+    def interact(self, loop, interact_point):
         self.slider.interact(loop, interact_point)
 
     def draw(self, screen):
@@ -273,7 +265,7 @@ class LinkedProgressSlider(Entity):
 
 
 class Sprite(Entity):
-    def __init__(self, path: str, center: point, width: float, height: float) -> None:
+    def __init__(self, path, center, width, height):
         self.texture = pygame.image.load(path)
         self.texture = pygame.transform.scale(self.texture, (width, height))
         self.rect = self.texture.get_rect()
@@ -285,7 +277,7 @@ class Sprite(Entity):
 
 
 class StatusPip(Entity):
-    def __init__(self, center: point, radius: float, colour: colour) -> None:
+    def __init__(self, center, radius, colour):
         self.center = center
         self.radius = radius
         self.colour = colour
@@ -295,8 +287,8 @@ class StatusPip(Entity):
 
 
 class FrameUpdateEvent(Entity):
-    def __init__(self, handler: callable) -> None:
+    def __init__(self, handler):
         self.handler = handler
 
-    def update(self, loop: 'RunLoop', time_delta: float):
+    def update(self, loop, time_delta):
         self.handler(loop, time_delta)

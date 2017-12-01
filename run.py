@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import os
 import sys
 
@@ -7,6 +8,7 @@ import itertools
 import traceback
 
 import modules
+
 
 def print_help(message, module):
     print()
@@ -37,7 +39,7 @@ def parse_command(args, module, break_loop, settings):
         if arg in module:
             module = module[arg]
         else:
-            path = ".".join(command_path[:i+1])
+            path = ".".join(command_path[:i + 1])
             print("Could not find module with path:", path)
 
             path = ".".join(command_path[:i])
@@ -80,15 +82,19 @@ def parse_command(args, module, break_loop, settings):
 
                 if return_val:
                     print()
-                    print("-----------------------------------------------------------------------------------------------")
+                    print(
+                    "-----------------------------------------------------------------------------------------------")
                     print("Successfully executed:", path)
-                    print("===============================================================================================")
+                    print(
+                    "===============================================================================================")
                     print()
                 else:
                     print()
-                    print("-----------------------------------------------------------------------------------------------")
+                    print(
+                    "-----------------------------------------------------------------------------------------------")
                     print("Error executing:", path)
-                    print("===============================================================================================")
+                    print(
+                    "===============================================================================================")
                     print()
                     return
             except:
@@ -96,7 +102,7 @@ def parse_command(args, module, break_loop, settings):
                 print("-----------------------------------------------------------------------------------------------")
                 print("Encountered execution when executing:", path)
                 print()
-                traceback.print_exc(limit=None, file=None, chain=True)
+                traceback.print_exc(limit=None, file=None)
                 print()
                 print("===============================================================================================")
                 print()
@@ -110,8 +116,8 @@ def parse_command(args, module, break_loop, settings):
 def run(settings):
     should_loop = True
 
-    def break_loop() -> None:
-        nonlocal should_loop
+    def break_loop():
+        global should_loop
         should_loop = False
 
     verb = sys.argv[1]
@@ -128,12 +134,15 @@ def run(settings):
     else:
         parse_command(sys.argv[1:], modules.MODULE, break_loop, settings)
 
+
 if __name__ == '__main__':
     try:
         import settings_local as settings
+
         print("Imported local settings.")
     except ImportError:
         import settings
+
         print("Imported default settings.")
 
     run(settings)

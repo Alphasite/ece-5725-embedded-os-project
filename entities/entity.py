@@ -3,22 +3,18 @@ Nishad Mathur (nm594) & Adam Halverson (abh222)
 Lab 3, Lab Section 02, 17/10/17
 """
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from entities.loop import RunLoop
-    from entities import point
+from __future__ import division, print_function
 
 
-class Entity:
-    def update(self, loop: 'RunLoop', time_delta: float):
+class Entity(object):
+    def update(self, loop, time_delta):
         pass
 
     def draw(self, screen):
         pass
 
-    def interact(self, loop: 'RunLoop', interact_point: 'point'):
+    def interact(self, loop, interact_point):
         pass
 
-    def drag(self, loop: 'RunLoop', start_point: 'point', current_point: 'point'):
+    def drag(self, loop, start_point, current_point):
         pass

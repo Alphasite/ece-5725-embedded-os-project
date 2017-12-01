@@ -1,3 +1,4 @@
+mock
 pygame
 pySerial
 RPi.GPIO
