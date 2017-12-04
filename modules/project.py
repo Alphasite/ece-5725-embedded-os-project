@@ -3,7 +3,7 @@ import os
 import serial
 import sys
 
-from entities import red, green
+from entities import red, green, yellow
 from entities.external import ActuatorController
 from entities.loop import RunLoop
 from entities.ui import Label, Button, ModalButton, LinkedProgressSlider, StatusPip, FrameUpdateEvent
@@ -57,9 +57,35 @@ def gui(settings, arguments, **kwargs):
     modal_active_button = Button((120, 210), "Stop", stop_button, background_colour=red, text_size=30)
     modal_disabled_button = Button((120, 210), "Start", start_button, background_colour=green, text_size=30)
 
+    def set_stopped_factory(index, value):
+        def function(loop):
+            print("Set", index, value)
+            controller.actuators[index].stopped = value
+
+        return function
+
+    active_status_pips = [
+        StatusPip((40, 45), 8, green, set_stopped_factory(0, True)),
+        StatusPip((120, 45), 8, green, set_stopped_factory(1, True)),
+        StatusPip((200, 45), 8, green, set_stopped_factory(2, True)),
+        StatusPip((280, 45), 8, green, set_stopped_factory(3, True)),
+    ]
+
+    disabled_status_pips = [
+        StatusPip((40, 45), 8, red, set_stopped_factory(0, False)),
+        StatusPip((120, 45), 8, red, set_stopped_factory(1, False)),
+        StatusPip((200, 45), 8, red, set_stopped_factory(2, False)),
+        StatusPip((280, 45), 8, red, set_stopped_factory(3, False)),
+    ]
+
+
     buttons = [
         ModalButton(modal_disabled_button, modal_active_button),
         Button((200, 210), "Quit", exit_loop, text_size=30),
+        ModalButton(active_status_pips[0], disabled_status_pips[0]),
+        ModalButton(active_status_pips[1], disabled_status_pips[1]),
+        ModalButton(active_status_pips[2], disabled_status_pips[2]),
+        ModalButton(active_status_pips[3], disabled_status_pips[3]),
     ]
 
     labels = [
@@ -80,27 +106,28 @@ def gui(settings, arguments, **kwargs):
         LinkedProgressSlider(0.5, 100, 10, (280, 120), bar_colour, tri_colour)
     ]
 
-    status = [
-        StatusPip((40, 45), 8, green),
-        StatusPip((120, 45), 8, green),
-        StatusPip((200, 45), 8, red),
-        StatusPip((280, 45), 8, red),
-    ]
-
     def update_frame(loop, time_delta):
         # link slider target/actual with actuator target/actual
         for i in range(4):  # TODO
             actuator = controller.actuators[i]
             control = controls[i]
-            pip = status[i]
+            pip = active_status_pips[i]
 
             actuator.target_position = control.slider.position
             control.bar.position = actuator.position
 
             if actuator.stalled:
-                pip.colour = red
+                pip.colour = yellow
             else:
                 pip.colour = green
+
+
+        # for i in range(1, 4):
+        #     controller.actuators[i].stopped = True
+            # actuator = controller.actuators[i]
+            # control = controls[i]
+            # actuator.target_position = 0.0
+            # print(i, actuator.target_position, actuator.position)
 
         duty_cycle = controller.actuators[0].duty_cycle
         reverse = controller.actuators[0].reverse
@@ -111,7 +138,6 @@ def gui(settings, arguments, **kwargs):
     entities += labels
     entities += buttons
     entities += controls
-    entities += status
     entities.append(FrameUpdateEvent(update_frame))
 
     stop_button(loop)

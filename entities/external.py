@@ -9,7 +9,6 @@ import threading
 import time
 import os
 import serial
-from pygame.time import Clock
 
 from entities.entity import Entity
 
@@ -110,8 +109,6 @@ class PWMOutput(object):
     def __init__(self, serial_channel, index, period, duty_cycle):
         self.serial_channel = serial_channel
         self.index = index
-        self._period = period
-        self._duty_cycle = duty_cycle
         self.period = period
         self.old_period = None
         self.duty_cycle = duty_cycle
@@ -123,7 +120,7 @@ class PWMOutput(object):
 
             self.serial_channel.send("/pwm{pin}/period {period}".format(
                 pin=self.index,
-                period=self._period,
+                period=self.period,
             ))
 
         if self.duty_cycle != self.old_duty_cycle:
@@ -131,7 +128,7 @@ class PWMOutput(object):
 
             self.serial_channel.send("/pwm{pin}/write {duty}".format(
                 pin=self.index,
-                duty=self._duty_cycle
+                duty=self.duty_cycle
             ))
 
 
@@ -161,11 +158,7 @@ class AnalogInput(object):
     def __init__(self, serial_channel, index):
         self.serial_channel = serial_channel
         self.index = index
-        self._value = 0.0
-
-    @property
-    def value(self):
-        return self._value
+        self.value = 0.0
 
     def refresh(self):
         result = ''
@@ -174,7 +167,7 @@ class AnalogInput(object):
             while len(result) == 0:
                 result = self.serial_channel.send("/analog{0}/read".format(self.index))
 
-        self._value = float(result)
+        self.value = float(result)
 
 
 class Actuator(object):
@@ -187,8 +180,22 @@ class Actuator(object):
         self.min_value = min_value
         self.max_value = max_value
         self.previous_position = self.position
+        self._target_position = None
         self.target_position = self.position
         self.stopped = True
+        self.seconds_frozen = 0
+        self.previous_delta = 0.0
+
+    @property
+    def target_position(self):
+        return self._target_position
+
+    @target_position.setter
+    def target_position(self, value):
+        if self.target_position != value:
+            self.seconds_frozen = 0
+
+        self._target_position = value
 
     @property
     def position(self):
@@ -214,25 +221,31 @@ class Actuator(object):
 
     @property
     def stalled(self):
-        return False
+        return self.seconds_frozen > 2
 
     def update(self, frame_time_s):
-        for analogin in self.channel.analog_inputs:
-            analogin.refresh()
-
         position_delta = self.target_position - self.position
 
-        # Don't bother moving if we're close to the target position
-        if abs(position_delta) > Actuator.MAXIMUM_POSITION_ERROR and not self.stopped:
-            target_velocity = min((position_delta * 6) ** 2, 1)
-            velocity_delta = target_velocity - self.duty_cycle
+        target_velocity = min((position_delta * 6) ** 2, 1)
+        velocity_delta = target_velocity - self.duty_cycle
 
-            target_velocity_delta = velocity_delta
+        target_velocity_delta = velocity_delta
+
+        # Don't bother moving if we're close to the target position
+        if abs(position_delta) > Actuator.MAXIMUM_POSITION_ERROR and not self.stopped and not self.stalled:
+            # stall detection
+            if abs(position_delta - self.previous_delta) < 0.001:
+                print(self.seconds_frozen)
+                self.seconds_frozen += frame_time_s
+            else:
+                self.seconds_frozen = 0
+
+            self.previous_delta = position_delta
 
             # Don't bother adjusting speed if we're close to the target speed
             if abs(target_velocity_delta) > Actuator.MAXIMUM_VELOCITY_ERROR:
                 self.duty_cycle += target_velocity_delta * (frame_time_s * 2)
-                self.reverse = position_delta >= 0
+                self.reverse = position_delta < 0
 
                 # print("Target p:", self.target_position)
                 # print("Actual p:", self.position)
@@ -244,19 +257,13 @@ class Actuator(object):
             self.duty_cycle = 0
             self.reverse = False
 
-        for digitalout in self.channel.digital_outputs:
-            digitalout.refresh()
-
-        for pwmout in self.channel.pwm_outputs:
-            pwmout.refresh()
-
 
 class ActuatorController(Entity):
     target_framerate = 30
 
     def __init__(self, serial_path):
         self.channel = SerialChannel(serial_path, 0.5, 1/200)
-        self.actuators = [Actuator(self.channel, i, 0, 1) for i in range(4)]
+        self.actuators = [Actuator(self.channel, i, 0.3/3.3, 3.0/3.3) for i in range(4)]
 
         self.running = True
         self.thread = None
@@ -269,16 +276,23 @@ class ActuatorController(Entity):
         previous_time = time.time()
 
         while self.running:
-            # time.sleep(1.0 / ActuatorController.target_framerate)
-
             current_time = time.time()
             frame_time_s = current_time - previous_time
             previous_time = current_time
 
-            print("Frametime:", frame_time_s)
+            # print("Frametime:", frame_time_s)
+
+            for analogin in self.channel.analog_inputs:
+                analogin.refresh()
 
             for actuator in self.actuators:
                 actuator.update(frame_time_s)
+
+            for digitalout in self.channel.digital_outputs:
+                digitalout.refresh()
+
+            for pwmout in self.channel.pwm_outputs:
+                pwmout.refresh()
 
     def quit(self):
         self.running = False

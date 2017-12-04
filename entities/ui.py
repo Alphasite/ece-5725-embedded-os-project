@@ -276,11 +276,19 @@ class Sprite(Entity):
         screen.blit(self.texture, self.rect)
 
 
-class StatusPip(Entity):
-    def __init__(self, center, radius, colour):
+class StatusPip(Button):
+    def __init__(self, center, radius, colour, action):
+        super(StatusPip, self).__init__(center, "pip", action)
         self.center = center
         self.radius = radius
         self.colour = colour
+
+        self.label.background_rect = pygame.Rect(
+            self.center[0] - self.radius / 2,
+            self.center[1] - self.radius / 2,
+            self.radius,
+            self.radius
+        ).inflate(5, 5)
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.colour, self.center, self.radius)
