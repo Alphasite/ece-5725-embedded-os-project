@@ -172,7 +172,7 @@ class AnalogInput(object):
 
 class Actuator(object):
     MAXIMUM_POSITION_ERROR = 0.01
-    MAXIMUM_VELOCITY_ERROR = 0.01
+    MAXIMUM_VELOCITY_ERROR = 0.002
 
     def __init__(self, channel, index, min_value, max_value):
         self.index = index
