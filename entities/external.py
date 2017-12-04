@@ -221,7 +221,7 @@ class Actuator(object):
 
     @property
     def stalled(self):
-        return self.seconds_frozen > 2
+        return self.seconds_frozen > 0.5
 
     def update(self, frame_time_s):
         position_delta = self.target_position - self.position
