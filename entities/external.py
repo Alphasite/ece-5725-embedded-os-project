@@ -254,7 +254,6 @@ class Actuator(object):
                 # print("Target d:", target_velocity_delta)
 
         else:
-            self.stopped = True
             self.duty_cycle = 0
             self.reverse = False
 
