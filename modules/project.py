@@ -93,7 +93,6 @@ def gui(settings, arguments, **kwargs):
         Label((120, 20), "Servo 2"),
         Label((200, 20), "Servo 3"),
         Label((280, 20), "Servo 4"),
-        Label((40, 220), "PWM"),
     ]
 
     bar_colour = (40, 40, 40)
@@ -128,11 +127,6 @@ def gui(settings, arguments, **kwargs):
             # control = controls[i]
             # actuator.target_position = 0.0
             # print(i, actuator.target_position, actuator.position)
-
-        duty_cycle = controller.actuators[0].duty_cycle
-        reverse = controller.actuators[0].reverse
-
-        labels[4].text = "{0:0.2f} R:{1}".format(duty_cycle, str(reverse)[0])
 
     entities = []
     entities += labels
