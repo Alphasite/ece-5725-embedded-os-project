@@ -171,7 +171,7 @@ class AnalogInput(object):
 
 
 class Actuator(object):
-    MAXIMUM_POSITION_ERROR = 0.01
+    MAXIMUM_POSITION_ERROR = 0.1
     MAXIMUM_VELOCITY_ERROR = 0.002
 
     def __init__(self, channel, index, min_value, max_value):
@@ -254,6 +254,7 @@ class Actuator(object):
                 # print("Target d:", target_velocity_delta)
 
         else:
+            self.stopped = True
             self.duty_cycle = 0
             self.reverse = False
 
