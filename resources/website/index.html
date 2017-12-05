@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>High Power Motor Controller</title>
+
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Project name</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#intro">Introduction</a></li>
+                <li><a href="#obj">Project Objective</a></li>
+                <li><a href="#design">Design</a></li>
+                <li><a href="#drawings">Drawings</a></li>
+                <li><a href="#testing">Testing</a></li>
+                <li><a href="#result">Result</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+
+<div class="container">
+    <div class="starter-template">
+        <h1>High Power Motor Controller</h1>
+        <p class="lead">
+            Raspberry Pi & mbed
+            <br>
+            Project by Adam Halverson (abh222) and Nishad Mathur (nm594).
+        </p>
+    </div>
+
+    <hr>
+    <div class="center-block">
+        <iframe width="640" height="360" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+        <h4 style="text-align:center;">Demonstration Video</h4>
+    </div>
+
+    <hr id='obj'>
+
+    <div class="row">
+        <div class="col-md-4" style="text-align:center;">
+            <img class="img-rounded" src="pics/1.jpg" alt="Generic placeholder image" width="240" height="240">
+        </div>
+        <div class="col-md-8" style="font-size:18px;">
+            <h2>Project Objective:</h2>
+            <p style="text-align: left;padding: 0px 30px;">
+                The purpose of this project was to develop a multi-channel, high-current motor control system.
+                In many robotic applications, the ultimately deliverable power of the servo motors is limited
+                by the built-in H-Bridge circuitry, which is typically rated for low-current operation between
+                3.6-7.2V. This system would permit external closed-loop control of high-load DC-motors for up
+                to 30A/24V (0.72kW) per channel.
+            </p>
+        </div>
+    </div>
+
+    <hr id="intro">
+
+    <div>
+        <h2>Introduction</h2>
+        <p>
+            To realize the objective of this project, a Raspberry Pi was fitted with an external I/O device capable of
+            multiple PWM outputs and analog inputs. External amplification circuitry based on N-channel MOSFETs was
+            designed to interface with this device in order to reproduce the control signals at the desired power
+            levels. To enable bi-directional control of the motors without the use of a multi-polarity power source, a
+            relay system was configured for each channel that switches the polarity assignment to the motor terminals
+            based on the embedded controller signal. To reduce hazardous back-EMF voltage spikes brought about by the
+            high-inductance in the switching operation, flywheel diodes were fitted across the respective loads in the
+            external circuit. This was particularly important in protecting the control hardware from back-EMF induced
+            power cycling.
+        </p>
+        <p>
+            The embedded system, which was programmed on the Raspberry Pi, used a myopic policy to control PWM-outputs
+            and movement direction signals. The control policy itself consisted of a simple exponential increase in
+            PWM-output when analog feedback differed from target, up to a certain threshold, saturating at 100%. The
+            control outputted an additional binary signal to switch polarity assignment using the relays when necessary.
+            The Raspberry Pi communicated via serial connection to the external hardware interface device in order to
+            generate these signals. The general system layout is given by (1).
+        </p>
+        <div>
+            <img src="pics/diagram.png" class="img-responsive center-block">
+            <p class="text-center caption">
+                Figure 1: High-Level System Flow Chart
+            </p>
+        </div>
+        <p>
+            The Raspberry Pi’s touchscreen interface allowed for control of 4 motors via adjustment of on-screen
+            position bars, with each motor being able to be cycled on/off by clicking the status light above its
+            respective feedback display (2). A “stall-out” routine was also programmed to protect the user/hardware;
+            this temporarily disables the motor in the event maximum PWM-output does not result in movement of the
+            motor. This is communicated by switching the status light for the respective motor to yellow. The user may
+            attempt to move the motor again by simply adjusting the position assignment, or tapping status light.
+        </p>
+        <div>
+            <img src="pics/ui.png" class="img-responsive center-block">
+            <p class="text-center caption">
+                Figure 2: Motor-Control System piTFT User-Interface
+            </p>
+        </div>
+    </div>
+    <!--
+    baud rate
+    python 3
+    thread for serial
+    dropped packets over serial
+    RT kernel
+    -->
+
+    <hr id='design'>
+
+    <div>
+        <h2>Design</h2>
+        <h3>Hardware</h3>
+        <p>
+            The circuit diagram shown in (3) illustrates the external circuitry design that was generated to amplify the
+            PWM signals, control the relay directional relays, and interface with the KL46Z. In order to amplify the PWM
+            output signal from the microcontroller, high-current N-Channel MOSFETS were selected to act as amplifiers.
+            When sufficient voltage is applied to the gate of a MOSFET, the doped region of the FET becomes saturated
+            and allows current to flow through. In this case, it closes connection from the negative-terminal of the
+            motors to ground, allowing a flow of power to the actuators from the motor power-supply.
+        </p>
+        <div>
+            <img src="pics/pwm.png" class="img-responsive center-block">
+            <p class="text-center caption">
+                Figure 3: External PWM-Amplification & Control Circuit Design [1]
+            </p>
+        </div>
+        <p>
+            Each linear actuator has a stall-current rating of (15A/30A) for a (12V/24V) power supply, respectively. [4]
+            Thus, given a maximum design selection of 24V, each MOSFET must be capable of handling at least 30A of
+            current. The selected MOSFETs (4) are capable of handling up to 60V and 30A of continuous load. [2]
+        </p>
+        <div>
+            <img src="pics/mosfet.png" class="img-responsive center-block">
+            <p class="text-center caption">
+                Figure 4: N-Channel MOSFET (#FQP30N06L, 60V, 30A Continuous Load Rating) [2]
+            </p>
+        </div>
+        <p>
+            The gate voltage required to turn on/off (close the connection) of this MOSFET is 3-5V, with 10mA of
+            required gate current. This is within range of the outputs of the KL46Z microcontroller. Thus, this
+            selection satisfies the motor-drive criteria, and is shown in the circuit as Motor Drivers A through D.
+        </p>
+        <p>
+            An important aspect to consider with this design, however, is the back-EMF that will inevitably be
+            experienced by the circuit as a result of inductance. This was a set-back encountered during the design and
+            testing process, which was rippling back through the circuit and invoking a reset of the connected
+            microcontroller. Back-EMF is produced when there is significant change in the current flow a system with
+            high-inductance, which creates a voltage-spike that can damage MOSFET circuitry. Thus, flywheel diodes are
+            to be added across both the MOSFET, and the DC motors, such that these voltage spikes may be rectified
+            harmlessly when invoked.
+        </p>
+        <p>
+            Given this system is not being designed with multi-polarity power supply and bidirectional control of the DC
+            motors is required, an additional switching circuit is required in order to swap the port connections to the
+            motors when necessary. This may be performed using a single-pole, double throw (SPDT) relay for each port,
+            as given by (5).
+        </p>
+        <div>
+            <img src="pics/relay.png" class="img-responsive center-block">
+            <p class="text-center caption">
+                Figure 5: Single-Pole, Double-Throw Relay (#JQX-15F, 30V, 30A Continuous Load Rating) [3]
+            </p>
+        </div>
+        <p>
+            Two of these devices will be required per actuator, capable of swapping both motor ports between the ground
+            and positive input signals. Relay pairs will share the same control signal and swap simultaneously. In the
+            event of a relay failure, the polarity will simply be the same on both ports, and as such, no hazard is
+            presented. However, the required “Pick-Up” ratings for the input control signal is 5V, 185mA. [3] Given two
+            of these will be driven by the same control signal, this exceeds the rating of the microcontroller output.
+            Thus, the relays’ drive signal will need to be powered by using an additional MOSFET circuit, which will act
+            as the relay-driver (as shown in the electrical schematic).
+        </p>
+        <p>
+            To ensure that the amplification circuitry met the required switching speeds, the circuit was configured and
+            tested at a maximum reasonable PWM-frequency of 1kHz while connected to an external DC motor. The results
+            are shown in (6).
+        </p>
+        <div>
+            <img src="pics/pwm.png" class="img-responsive center-block">
+            <p class="text-center caption">
+                Figure 6: 24V PWM Drive Signal amplified from 3.3V PWM Control Signal
+            </p>
+        </div>
+        <p>
+            The circuitry displayed no significant propagation delays and matched the frequency with satisfactory
+            precision. Thus, the full circuit was built and fully-configured to interface with all four motors, as shown
+            in (7).
+        </p>
+        <div>
+            <img src="pics/circuit.png" class="img-responsive center-block">
+            <p class="text-center caption">
+                Figure 7: Fully-Integrated Control Circuit
+            </p>
+        </div>
+        <p>
+            Additional LED’s were added across the various MOSFETs for visual diagnostic purposes, with green LEDS
+            reflecting the intensity of the PWM signal and red LEDs displaying the relay status for the respective
+            channels.
+        </p>
+        <h3>Software</h3>
+        <p>
+            The overall architecture of the system is that there are two primary threads of execution, the GUI thread
+            and the motor control thread, this allows the motor control and the GUI to operate independently of one
+            another and to meet their performance requirements without interfering with one another.
+        </p>
+        <p>
+            The GUI system is an extension of our previous works, having written a UI framework previously, based on
+            PyGame it implements a core rendering loop, composable and extendable UI elements and an interaction and
+            update framework for these elements. We have primitives for labels, buttons, modal buttons (swap between
+            states), sliders, progress bars, sprites, status pips (coloured circular buttons), sprites and elements
+            which are composed of other elements. These expose an update (refresh internal state), render (draw on
+            screen), handle click and handle drag (update slider position) methods. They build upon a debouncer
+            primitive and our core entity framework, which is a superclass which provides default implementations for
+            each of these methods (reducing boilerplate for elements which don’t need every method). The run-loop
+            handles setting up the program for operations on the pi (setting the display output, mouse drivers, etc), as
+            well as handling events, refreshing elements and redrawing the UI elements. This section is fairly straight
+            forwards but more specific details on this can be found in previous labs.
+        </p>
+        <div>
+            <img src="pics/ui.png" class="img-responsive center-block">
+            <p class="text-center caption">
+                Figure 8: UI Elements
+            </p>
+        </div>
+        <p>
+            The ui (as pictured above) has 4 labels, 1 for each servo, 4 status pips, which are modal buttons,
+            consisting of an active status pip (which is green (or yellow on stall)) and a disabled status pip (red), 4
+            slider/progress bar combos, a modal start/stop button and a quit button which exits the program. The UI
+            approximately follows a model-view-controller model, with the view being the UI elements, the controllers
+            being the UI thread and the motor control thread, and their being dumb data container models, which are
+            periodically synchronized with the microcontroller. The UI system is explained above, but the motor
+            controller thread is more interesting.
+        </p>
+        <p>
+            The shared state between the motor controller and the ui are data models, AnalogIn, DigitalOut, PWMOut and
+            Actuator. These are container classes which store the data used for the UI state and the motors, they use
+            python properties to transform the data from (for example) the 0.3-3.0v range of the analog inputs to the
+            0-1 range of the progress bar. This allows for natural programming model, where repetitive transformations
+            are transparently performed to the data and it reduces the scope for bugs due to failure to transform inputs
+            correctly.
+        </p>
+        <p>
+            Both the motor controller and the UI hold references to these models and update them as needed, with the
+            motor controller calling refresh on these models once a cycle (avoiding the overhead of redundant
+            communication with the microcontroller for every operation), so each model then send a request along the
+            serial channel and awaits a response (if needed), either updating the stored data on the microcontroller or
+            updating its internal view of the state of the microcontroller. The serial channel is implementing using the
+            PySerial library and uses a 57,600 baud connection. It uses a request-response model, where it sends a
+            request and expects a response (empty string or a numeric value) rather than a fully asynchronous approach,
+            this is reasonable as the updating is deferred to a separate thread and doesn’t block the main GUI thread.
+        </p>
+        <div>
+            <img src="pics/control.png" class="img-responsive center-block">
+            <p class="text-center caption">
+                Figure 9: Motor Control Speed Curve
+            </p>
+        </div>
+        <p>
+            Calibrating the motor control curve’s (acceleration and speed) proved to be a fairly complicated problem, as
+            the initial approach of bounding speed to the square of the distance of the motor from its intended position
+            gave a very undesirably slow acceleration curve and top speed, so many iterations were attempted and we
+            finally settled on the above curve, which reaches maximum speed fairly quickly but still offers gradual
+            startup.
+        </p>
+        <p>
+            On the software side, there were several interesting challenges along the way; one of the first we had was
+            managing performance in the core loop. Due to limitations on the microcontroller side we are bandwidth
+            constrained on the serial link between the host (raspberry pi) and the microcontroller, with many issues
+            stemming from this problem. The first which was encountered was that the initial design had any reads and
+            writes to the analog inputs, PWM outputs and digital outputs synchronously performed in the core rendering
+            loop, as there could be multiple reads to a single analog pin in per cycle this significantly affected
+            performance causing drops into single digit FPS, which was unacceptable.
+        </p>
+        <p>
+            There was no magic bullet solution to this problem, the first step in solving this problem was increasing
+            the baud rate of the system from 9600 to 57,600, which did significantly improve performance in terms of
+            motor control refresh rate but still left the GUI rendering loop far below an acceptable refresh rate. Hence
+            the control signals were moved over to refreshing in an asynchronous model, with a second thread running in
+            the background and periodically refreshing the model objects on the client side and the microcontroller (as
+            described above), this fully decoupled the motor control logic from the GUI refresh logic, allowing both to
+            perform far more effectively.
+        </p>
+        <p>
+            After these issues were solved another issue was discovered with the serial system, around 0.1% of requests
+            to the micro-controller were corrupted, eventually this was tracked down to being caused by the 8 byte
+            serial
+            receive buffer on the micro-controller overflowing and dropping characters. The solution was to move from a
+            fully custom serial command parser to the micro-controller’s streaming serial command parser which is
+            included as part of its standard library, this provided all of the required functionality with the benefit
+            of being far better tested than a bespoke command parser. This new parser has been completely reliable for
+            our use case.
+        </p>
+        <p>
+            There were also issues which weren’t related the serial channel, namely due to near abandon-ware status of
+            PyGame, it has not been properly ported to python 3, and exhibited a series of extremely strange issues when
+            operating under load and this was resolved by backporting the system to python 2, rewriting as needed code
+            quality was lost, but the tradeoff was stability which is reasonable. The other issue was mysterious and
+            inexplicable hard crashes of the operating system when running the system directly on the raspberry pi, it
+            was eventually tracked down to having being caused by the usage of the RT kernel, so it was solved by
+            reverting to the standard kernel.
+        </p>
+        <p>
+            Validation involved testing each software component individually, first the GUI when it was written, then
+            the motor control system when it was implemented, then the controller firmware was validated, each of these
+            were manually tested, UI elements used, the system was given manual commands and its resulting actions
+            observed and validated, and then each of the components were validated as an integrated unit. The system was
+            then gradually tested with stand in components for the real hardware and then finally was tested as a
+            monolithic unit. The issues we encountered are documented above.
+        </p>
+        <p>
+            Overall solving these issues has led to a more robust and stable design and we are pleased with our
+            resulting system.
+        </p>
+    </div>
+
+    <hr id='result'>
+
+    <div>
+        <h2>Result</h2>
+        <p>
+            The primary goal of this system was to create a closed-loop controller for high-load DC-motors with a power
+            capacity of 30A/24V (0.72kW) per channel.
+        </p>
+        <p>
+            The closed-loop controller was successfully developed by creating an embedded operating system on the
+            Raspberry Pi, which effectively manipulated the control outputs via serial communication using the external
+            hardware I/O device (KL46Z). Adjustments made to the motor position assignment, via the user-interface, were
+            successfully represented by the PWM and control signal outputs based on the current position. When power was
+            removed from a motor, the stall routine successfully detected the motor’s lack of responsivity and cut
+            PWM-output. All user-functionality was tested and performed as expected.
+        </p>
+        <p>
+            The external amplification circuit design exceeded the desired power specifications by 6V, and a
+            corresponding 180W, while meeting electric-current specifications. The circuit effectively powered all 4
+            motors, simultaneously, at the maximum load that was allowable given Cornell’s lab power-supply equipment.
+            Components handled aggressive directional switching and stress tests without failure. The negative effects
+            of back-EMF were also nullified through the appropriation of flywheel diodes. Stress-testing of the motors
+            via manual resistance to actuator position changed was futile in negatively affecting any dynamic
+            characteristics, and all position changes on the piTFT were successfully achieved under every test
+            conditions.
+        </p>
+        <p>
+            Consequently, the system performed as intended and all outlined objectives were met.
+        </p>
+    </div>
+
+    <div>
+        <h2>Conclusions</h2>
+        <p>
+            The results of this project met all outlined objectives, yielding the successful development of an embedded
+            software/hardware device capable of closed-loop control of high-load DC motors. The power supply for the DC
+            motors may range anywhere between 3.6V-30V, and the load-demand of the DC motors can range up to 30A per
+            channel.
+        </p>
+        <p>
+            Throughout this project, we discovered that the use of high-inductance devices under switching applications
+            yields hazardous back-EMF to connected hardware, and can disable and/or damage connected I/O’s.
+            Consequently, the use of diodes was well-implemented in order to drain this excess voltage and protect
+            peripheral components.
+        </p>
+        <p>
+            Many issues were encountered throughout the implementation of the software and solutions or workaround were
+            developed for each of them in turn. In general, the serial link is one factor which still has room for
+            improvement but overall solving these issues has led to a more robust and stable design and we are pleased
+            with our resulting system.
+        </p>
+    </div>
+
+    <div>
+        <h2>Future Work</h2>
+        <p>
+            Given additional time, we would likely explore the closed-loop control of DC motors that were not
+            implemented actuators (which require very little control finesse). Instead, we would attempt to control
+            gearbox-based DC motors, which represent additional challenges in optimizing control output to avoid
+            overshoot and instability. However, given the intended use of this circuitry (for actuator-based
+            applications), the current system yields satisfactory performance.
+        </p>
+        <p>
+            We would also like to move more of the control loop to the microcontroller, although the python is
+            reasonable for a prototype better performance could be achieved.
+        </p>
+    </div>
+
+    <hr>
+
+    <div class="row" style="text-align:center;">
+        <h2>Work Distribution</h2>
+        <div style="text-align:center;">
+            <img class="img-rounded" src="pics/group.jpg" alt="Generic placeholder image" style="width:80%;">
+            <h4>Project group picture</h4>
+        </div>
+        <div class="col-md-6" style="font-size:16px">
+            <img class="img-rounded" src="pics/a.png" alt="Generic placeholder image" width="240" height="240">
+            <h3>Adam Halverson </h3>
+            <p class="lead">abh222@cornell.edu</p>
+            <p>
+                My contributions to this project were primarily in the system-level design, assembly, and testing. To
+                begin the project, I discussed with my partner the software/hardware capabilities we required to be
+                successful and ensured we were both clear in our forward paths. My initial efforts were focused on
+                designing an end-to-end system that was capable of meeting the desired functionality specifications
+                given by our project description, all while being within budget constraints ($100). During this time, I
+                also worked with my partner in selecting a suitable hardware I/O device, one which offered the
+                sufficient functionality while remaining compatible with the RasPi. Once we’d selected the appropriate
+                hardware and electrical components, it was my responsibility to order, configure, and test my
+                amplification-circuit design for functionality. When feedback issues were encountered in the external
+                circuit, I researched the cause and remedied the problem through additional design work. Upon success, I
+                built the rest of the circuit and integrated the full system with our DC motors and hardware I/O system.
+                At this point, I worked with my partner and his software-development efforts to ensure an appropriate
+                control-scheme was achieved for the motors and that end-to-end functionality was feasible. From this
+                point on, work was entirely cooperative from both parties in debugging the hardware/software in order to
+                achieve a fully-operational end product.
+            </p>
+        </div>
+        <div class="col-md-6" style="font-size:16px">
+            <img class="img-rounded" src="pics/b.png" alt="Generic placeholder image" width="240" height="240">
+            <h3>Nishad Mathur</h3>
+            <p class="lead">nm594@cornell.edu</p>
+            <p>
+                Responsible for designing, implementing and testing the software for the system. We implemented the
+                control loop in conjunction with one another and I took responsibility for handling the UI,
+                microcontroller work and overall software architecture. Testing of the software system in isolation was
+                primarily my task and we cooperatively tested the integrated system, adjusting and implementing new
+                functionality as needed.
+            </p>
+        </div>
+    </div>
+
+    <hr>
+    <div style="font-size:18px">
+        <h2>Parts List</h2>
+        <ul>
+            <li>Raspberry Pi 1x$0.00</li>
+            <li>Adafruit Touchscreen 1x$0.00</li>
+            <li>FDRM KL46Z Microcontroller 1x$10.00</li>
+            <li>Used Heavy Duty Linear Actuator 1x$35.00</li>
+            <li>SPDT Relay (30V, 30A) 8x$2.50</li>
+            <li>N-Channel MOSFET (60V/30A) 8x$0.95</li>
+            <li>Mis. Circuitry (Resistors, Diodes, LEDs) 1x$5.00</li>
+            <li>Giant Breadboard 1x$10.00</li>
+        </ul>
+        <h3>Total: $89.60</h3>
+    </div>
+    <hr>
+    <div style="font-size:18px">
+        <h2>References</h2>
+        <a href="https://www.nxp.com/products/processors-and-microcontrollers/arm-based-processors-and-mcus/kinetis-cortex-m-mcus/">
+            [1] "NXP FDRM-KL46Z Microcontroller" NXP.com, Accessed: 11/17/2017
+        </a>
+        <br>
+        <a href="www.servocity.com/hda4-50">
+            [2] "N-Channel MOSFET #FQP30N06L" ServoCity.com, Accessed: 11/17/2017
+        </a>
+        <br>
+        <a href="www.servocity.com/hda4-50">
+            [3] "SPDT Relay #JQX-15F" ServoCity.com, Accessed: 11/17/2017
+        </a>
+        <br>
+        <a href="www.servocity.com/hda4-50">
+            [4] "115 lb. Thrust Heavy Duty Linear Actuator Specifications" ServoCity.com, Accessed: 11/17/2017
+        </a>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <h2>Code Appendix</h2>
+        <p>Code can be downloaded <a href="downloads/src.zip">here</a>.</p>
+    </div>
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<script src="dist/js/bootstrap.min.js"></script>
+<script src="  https://cdn.rawgit.com/showdownjs/showdown/<version tag>/dist/showdown.min.js"></script>
+
+</body>
+</html>
