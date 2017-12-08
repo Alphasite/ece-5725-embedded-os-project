@@ -13,6 +13,7 @@ import serial
 from entities.entity import Entity
 
 # allow code to run on system without RPI GPIO installed, eg macos
+# also mock has a different path on python 3
 try:
     from unittest.mock import Mock
 except ImportError:
