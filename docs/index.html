@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>High Power Motor Controller</title>
+    <title>High-Current Motor Control System</title>
 
     <link href="dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/index.css" rel="stylesheet">
@@ -45,11 +45,11 @@
 
 <div class="container">
     <div class="starter-template">
-        <h1>High Power Motor Controller</h1>
+        <h1>High-Current Motor Controller</h1>
         <p class="lead">
-            Raspberry Pi & mbed
+            Embedded Motor Control Applications using Raspberry Pi & Mbed
             <br>
-            Project by Adam Halverson (abh222) and Nishad Mathur (nm594).
+            Project by: Adam Halverson (abh222) and Nishad Mathur (nm594)
         </p>
     </div>
 
@@ -63,16 +63,17 @@
 
     <div class="row">
         <div class="col-md-4" style="text-align:center;">
-            <img class="img-rounded" src="pics/1.jpg" alt="Generic placeholder image" width="240" height="240">
+            <img class="img-rounded" src="pics/1.jpg" alt="Generic placeholder image" width="800" height="400">
         </div>
         <div class="col-md-8" style="font-size:18px;">
             <h2>Project Objective:</h2>
             <p style="text-align: left;padding: 0px 30px;">
                 The purpose of this project was to develop a multi-channel, high-current motor control system.
-                In many robotic applications, the ultimately deliverable power of the servo motors is limited
-                by the built-in H-Bridge circuitry, which is typically rated for low-current operation between
-                3.6-7.2V. This system would permit external closed-loop control of high-load DC-motors for up
-                to 30A/24V (0.72kW) per channel.
+                In many robotic applications, the ultimate deliverable power of servo motors is limited
+                by built-in H-Bridge circuitry, which is typically rated for low-current operation between
+                3.6-7.2V. This project's objective was to develop a substitute, closed-loop control system
+				capable of supplying up to 30A/24V (0.72kW) per channel. These channels would draw power
+				from a supply that is also independent of the logic circuitry.
             </p>
         </div>
     </div>
@@ -82,23 +83,23 @@
     <div>
         <h2>Introduction</h2>
         <p>
-            To realize the objective of this project, a Raspberry Pi was fitted with an external I/O device capable of
+            In pursuing the objective of this project, a Raspberry Pi was fitted with an external I/O device that was capable of
             multiple PWM outputs and analog inputs. External amplification circuitry based on N-channel MOSFETs was
-            designed to interface with this device in order to reproduce the control signals at the desired power
-            levels. To enable bi-directional control of the motors without the use of a multi-polarity power source, a
-            relay system was configured for each channel that switches the polarity assignment to the motor terminals
-            based on the embedded controller signal. To reduce hazardous back-EMF voltage spikes brought about by the
-            high-inductance in the switching operation, flywheel diodes were fitted across the respective loads in the
-            external circuit. This was particularly important in protecting the control hardware from back-EMF induced
-            power cycling.
+            designed to interface with this device in order to reproduce the PWM control signals using the external motor power
+            supply. To enable bi-directional control of the motors (without the use of a multi-polarity power source), a
+            relay system was configured for each channel. This switches the polarity assignment to the motor terminals
+            based on the embedded controller signal. To reduce hazardous back-EMF brought about by the
+            high-inductance in the switching operation, flywheel diodes were fitted across the respective inductive loads in the
+            external circuit. This was particularly important in protecting the I/O hardware from back-EMF induced
+            voltage spikes.
         </p>
         <p>
-            The embedded system, which was programmed on the Raspberry Pi, used a myopic policy to control PWM-outputs
-            and movement direction signals. The control policy itself consisted of a simple exponential increase in
-            PWM-output when analog feedback differed from target, up to a certain threshold, saturating at 100%. The
-            control outputted an additional binary signal to switch polarity assignment using the relays when necessary.
-            The Raspberry Pi communicated via serial connection to the external hardware interface device in order to
-            generate these signals. The general system layout is given by (1).
+            The embedded system, which was programmed on the Raspberry Pi, used a myopic policy to adjust PWM-outputs
+            and motor-direction signals. The control policy itself consisted of a simple exponential increase in
+            PWM-output when analog feedback differed from target, saturating after a specified delta at 100%. The
+            control also outputted a binary signal to switch polarity assignments when retracting the actuators.
+            The Raspberry Pi communicated via serial to the external hardware I/O device in order to
+            invoke these signals. The general system layout is given by (1).
         </p>
         <div>
             <img src="pics/diagram.png" class="img-responsive center-block">
@@ -107,10 +108,10 @@
             </p>
         </div>
         <p>
-            The Raspberry Pi’s touchscreen interface allowed for control of 4 motors via adjustment of on-screen
+            The Raspberry Pi's touchscreen interface allowed for control of 4 motors through the adjustment of on-screen
             position bars, with each motor being able to be cycled on/off by clicking the status light above its
-            respective feedback display (2). A “stall-out” routine was also programmed to protect the user/hardware;
-            this temporarily disables the motor in the event maximum PWM-output does not result in movement of the
+            respective feedback display (2). A stall-out routine was also programmed to protect the user/hardware;
+            this temporarily disabled the motor in the event that maximum PWM-output did not result in movement of the
             motor. This is communicated by switching the status light for the respective motor to yellow. The user may
             attempt to move the motor again by simply adjusting the position assignment, or tapping status light.
         </p>
@@ -143,7 +144,7 @@
             motors to ground, allowing a flow of power to the actuators from the motor power-supply.
         </p>
         <div>
-            <img src="pics/pwm.png" class="img-responsive center-block">
+            <img src="pics/amp.png" class="img-responsive center-block">
             <p class="text-center caption">
                 Figure 3: External PWM-Amplification & Control Circuit Design [1]
             </p>
@@ -154,7 +155,9 @@
             current. The selected MOSFETs (4) are capable of handling up to 60V and 30A of continuous load. [2]
         </p>
         <div>
-            <img src="pics/mosfet.png" class="img-responsive center-block">
+		    <div class="col-md-4" style="text-align:center;">
+				<img class="img-rounded" src="pics/mosfet.png" alt="Generic placeholder image" width="200" height="200">
+			</div>
             <p class="text-center caption">
                 Figure 4: N-Channel MOSFET (#FQP30N06L, 60V, 30A Continuous Load Rating) [2]
             </p>
@@ -180,18 +183,20 @@
             as given by (5).
         </p>
         <div>
-            <img src="pics/relay.png" class="img-responsive center-block">
+			<div class="col-md-4" style="text-align:center;">
+				<img class="img-rounded" src="pics/relay.png" alt="Generic placeholder image" width="200" height="200">
+			</div>
             <p class="text-center caption">
                 Figure 5: Single-Pole, Double-Throw Relay (#JQX-15F, 30V, 30A Continuous Load Rating) [3]
             </p>
         </div>
         <p>
-            Two of these devices will be required per actuator, capable of swapping both motor ports between the ground
+            Two of these devices will be required per actuator in order to swap both motor ports between the ground
             and positive input signals. Relay pairs will share the same control signal and swap simultaneously. In the
             event of a relay failure, the polarity will simply be the same on both ports, and as such, no hazard is
-            presented. However, the required “Pick-Up” ratings for the input control signal is 5V, 185mA. [3] Given two
+            presented. However, the required pick-up ratings for the input control signal is 5V, 185mA. [3] Given two
             of these will be driven by the same control signal, this exceeds the rating of the microcontroller output.
-            Thus, the relays’ drive signal will need to be powered by using an additional MOSFET circuit, which will act
+            Thus, the relays drive signal will need to be powered by using an additional MOSFET circuit, which will act
             as the relay-driver (as shown in the electrical schematic).
         </p>
         <p>
@@ -217,28 +222,28 @@
             </p>
         </div>
         <p>
-            Additional LED’s were added across the various MOSFETs for visual diagnostic purposes, with green LEDS
+            Additional LEDs were added across the various MOSFETs for visual diagnostic purposes, with green LEDS
             reflecting the intensity of the PWM signal and red LEDs displaying the relay status for the respective
             channels.
         </p>
         <h3>Software</h3>
         <p>
-            The overall architecture of the system is that there are two primary threads of execution, the GUI thread
-            and the motor control thread, this allows the motor control and the GUI to operate independently of one
-            another and to meet their performance requirements without interfering with one another.
+            The overall architecture of the system consists of two primary threads for execution: The GUI thread
+            and the motor control thread. This allows the motor control and the GUI to operate independently of one
+            another, and to meet their performance requirements without interfering with the parallel processes.
         </p>
         <p>
-            The GUI system is an extension of our previous works, having written a UI framework previously, based on
-            PyGame it implements a core rendering loop, composable and extendable UI elements and an interaction and
-            update framework for these elements. We have primitives for labels, buttons, modal buttons (swap between
-            states), sliders, progress bars, sprites, status pips (coloured circular buttons), sprites and elements
+            The GUI system is an extension of our previous works. A UI framework had previously been written based on
+            PyGame. This implements a core rendering loop with composable and extendable UI elements, and an interface to
+            update the framework for these elements. We have primitives for labels, buttons, modal buttons (swap between
+            states), sliders, progress bars, sprites, status pips (coloured circular buttons), and elements
             which are composed of other elements. These expose an update (refresh internal state), render (draw on
-            screen), handle click and handle drag (update slider position) methods. They build upon a debouncer
-            primitive and our core entity framework, which is a superclass which provides default implementations for
-            each of these methods (reducing boilerplate for elements which don’t need every method). The run-loop
+            screen), and handle click/drag (update slider position) methods. They build upon a debouncer
+            primitive and our core entity framework, which is a superclass that provides default implementations for
+            each of these methods (reducing boilerplate for elements which dont need every method). The run-loop
             handles setting up the program for operations on the pi (setting the display output, mouse drivers, etc), as
-            well as handling events, refreshing elements and redrawing the UI elements. This section is fairly straight
-            forwards but more specific details on this can be found in previous labs.
+            well as handling events, refreshing elements, and redrawing the UI elements. This section is fairly straight
+            forward, and more specific details on this can be found in previous ECE 5725 labs.
         </p>
         <div class="center-block">
             <img src="pics/ui.png" class="img-responsive center-block small-img">
@@ -247,31 +252,40 @@
             </p>
         </div>
         <p>
+<<<<<<< HEAD:resources/website/index.html
+            The ui (as pictured above) has 4 labels- 1 for each servo, 4 status pips (which are modal buttons
+            consisting of an active status pip (green-active, yellow-stall, red-disabled)), 4 slider/progress bar 
+            combos, a modal start/stop button, and a quit button which exits the program. The UI approximately 
+            follows a model-view-controller model, with the view being the UI elements, the controllers being the 
+            UI thread and the motor control thread, and there existing dumb data container models, which are
+            periodically synchronized with the microcontroller. The UI system is explained above, but the motor
+=======
             The ui (as pictured above) has 4 labels, 1 for each servo, 4 status pips, which are modal buttons,
             consisting of an active status pip (which is green (or yellow on stall)) and a disabled status pip (red), 4
             slider/progress bar combos, a modal start/stop button and a quit button which exits the program. The UI
             approximately follows a model-view-controller model, with the view being the UI elements, the controllers
             being the UI thread and the motor control thread, and their being dumb data container models, which are
             periodically synchronized with the micro controller. The UI system is explained above, but the motor
+>>>>>>> d5ea5c8d6ae20ac99b68873e7507a2da496a2b7e:docs/index.html
             controller thread is more interesting.
         </p>
         <p>
-            The shared state between the motor controller and the ui are data models, AnalogIn, DigitalOut, PWMOut and
-            Actuator. These are container classes which store the data used for the UI state and the motors, they use
-            python properties to transform the data from (for example) the 0.3-3.0v range of the analog inputs to the
-            0-1 range of the progress bar. This allows for natural programming model, where repetitive transformations
-            are transparently performed to the data and it reduces the scope for bugs due to failure to transform inputs
-            correctly.
+            The shared states between the motor controller and the UI are the data models, AnalogIn, DigitalOut, PWMOut,
+            and Actuators. These are container classes that store the data used for the UI state and the motors, which use
+            python properties to transform the data from (for example) the 0.3-3.0v range of the analog inputs into the
+            0-1 range of the progress bar. This allows for a natural programming model, where repetitive transformations
+            are transparently performed to the data, and the scope is reduced for bugs resulting from a failure to 
+            transform inputs correctly.
         </p>
         <p>
-            Both the motor controller and the UI hold references to these models and update them as needed, with the
-            motor controller calling refresh on these models once a cycle (avoiding the overhead of redundant
-            communication with the microcontroller for every operation), so each model then send a request along the
-            serial channel and awaits a response (if needed), either updating the stored data on the microcontroller or
-            updating its internal view of the state of the microcontroller. The serial channel is implementing using the
-            PySerial library and uses a 57,600 baud connection. It uses a request-response model, where it sends a
-            request and expects a response (empty string or a numeric value) rather than a fully asynchronous approach,
-            this is reasonable as the updating is deferred to a separate thread and doesn’t block the main GUI thread.
+            Both the motor-controller and the UI hold references to these models and updates them as needed, with the
+            motor controller calling a refresh on these models once a cycle (avoiding the overhead of redundant
+            communication with the microcontroller for every operation). Each model then sends a request along the
+            serial channel and awaits a response (if needed), either updating the stored data on the microcontroller, or
+            updating its internal view of the state of the microcontroller. The serial channel is implemented using the
+            PySerial library running a 57.6kbps baudrate connection. It uses a request-response model, where it sends a
+            request and expects a response (empty string or a numeric value) rather than a fully asynchronous approach.
+            This is reasonable given the updating is deferred to a separate thread and doesnt block the main GUI thread.
         </p>
         <div>
             <img src="pics/control.png" class="img-responsive center-block">
@@ -280,59 +294,57 @@
             </p>
         </div>
         <p>
-            Calibrating the motor control curve’s (acceleration and speed) proved to be a fairly complicated problem, as
+            Calibrating the motor control curves (acceleration and speed) proved to be a fairly complicated problem, as
             the initial approach of bounding speed to the square of the distance of the motor from its intended position
-            gave a very undesirably slow acceleration curve and top speed, so many iterations were attempted and we
+            gave a very undesirabe, slow acceleration curve and top-end speed. Many iterations were attempted, and we
             finally settled on the above curve, which reaches maximum speed fairly quickly but still offers gradual
-            startup.
+            startup and shutdown to avoid overshoot.
         </p>
         <p>
-            On the software side, there were several interesting challenges along the way; one of the first we had was
-            managing performance in the core loop. Due to limitations on the microcontroller side we are bandwidth
-            constrained on the serial link between the host (raspberry pi) and the microcontroller, with many issues
-            stemming from this problem. The first which was encountered was that the initial design had any reads and
-            writes to the analog inputs, PWM outputs and digital outputs synchronously performed in the core rendering
-            loop, as there could be multiple reads to a single analog pin in per cycle this significantly affected
-            performance causing drops into single digit FPS, which was unacceptable.
+            On the software side, there were several interesting challenges faced by this project. One of the first was
+            managing performance in the core loop. Due to limitations on the microcontroller side, we were bandwidth
+            constrained on the serial link between the host (Raspberry Pi) and the microcontroller. Many issues
+            stemmed from this problem. The first that was encountered during the initial design came from the numerous
+            reads and writes to the I/O device that were synchronously performed in the core rendering loop. Since there 
+            could be multiple reads to a single pin per cycle, this significantly affected performance during the software
+            loop, causing refresh rates to drops in PyGame down to single digit FPS, which was unacceptable.
         </p>
         <p>
-            There was no magic bullet solution to this problem, the first step in solving this problem was increasing
-            the baud rate of the system from 9600 to 57,600, which did significantly improve performance in terms of
-            motor control refresh rate but still left the GUI rendering loop far below an acceptable refresh rate. Hence
-            the control signals were moved over to refreshing in an asynchronous model, with a second thread running in
-            the background and periodically refreshing the model objects on the client side and the microcontroller (as
-            described above), this fully decoupled the motor control logic from the GUI refresh logic, allowing both to
+            There was no magic bullet solution to this problem. The first step that had been taken was increasing
+            the baudrate of the system from 9600bps to 57.6kbps, which did significantly improve performance in terms of
+            motor control refresh rate. However, this still left the GUI rendering loop far below an acceptable standards. 
+            Consequently, the control signals were moved over to refreshing in an asynchronous model, with a second thread 
+            running in the background and periodically refreshing the model objects on the client side and the microcontroller 
+            (as described above). This fully decoupled the motor control logic from the GUI refresh logic, allowing both to
             perform far more effectively.
         </p>
         <p>
-            After these issues were solved another issue was discovered with the serial system, around 0.1% of requests
-            to the micro-controller were corrupted, eventually this was tracked down to being caused by the 8 byte
-            serial
-            receive buffer on the micro-controller overflowing and dropping characters. The solution was to move from a
-            fully custom serial command parser to the micro-controller’s streaming serial command parser which is
-            included as part of its standard library, this provided all of the required functionality with the benefit
-            of being far better tested than a bespoke command parser. This new parser has been completely reliable for
+            After these issues were solved, another issue that was discovered was with the serial system. Around 0.1% of 
+            requests to the micro-controller were corrupted. Eventually, this was tracked down to being caused by the 8 byte
+            serial receive buffer on the micro-controller overflowing and dropping characters. The solution was to move from a
+            fully custom serial command parser to the micro-controllers streaming serial command parser, which is
+            included as part of its standard library. This provided all of the required functionalities, with the benefit
+            of being far better tested than the bespoke command parser. This new parser has been completely reliable for
             our use case.
         </p>
         <p>
-            There were also issues which weren’t related the serial channel, namely due to near abandon-ware status of
-            PyGame, it has not been properly ported to python 3, and exhibited a series of extremely strange issues when
-            operating under load and this was resolved by backporting the system to python 2, rewriting as needed code
-            quality was lost, but the tradeoff was stability which is reasonable. The other issue was mysterious and
-            inexplicable hard crashes of the operating system when running the system directly on the raspberry pi, it
-            was eventually tracked down to having being caused by the usage of the RT kernel, so it was solved by
+            There were also issues which werent related the serial channel, namely due to near abandon-ware status of
+            PyGame. Pygame has not been properly ported to python 3, and exhibited a series of extremely strange issues when
+            operating under load. This was resolved by backporting the system to python 2, rewriting the code as needed.
+            Code quality was lost, but the tradeoff in stability which justified the decision. The final issue was a mysterious 
+            and inexplicable hard crash of the operating system when running the system directly on the Raspberry Pi. This
+            was eventually tracked down to having being caused by the usage of the RT kernel, and was solved by
             reverting to the standard kernel.
         </p>
         <p>
-            Validation involved testing each software component individually, first the GUI when it was written, then
-            the motor control system when it was implemented, then the controller firmware was validated, each of these
-            were manually tested, UI elements used, the system was given manual commands and its resulting actions
-            observed and validated, and then each of the components were validated as an integrated unit. The system was
-            then gradually tested with stand in components for the real hardware and then finally was tested as a
-            monolithic unit. The issues we encountered are documented above.
+            Validation involved testing each software component individually. First, the GUI as it was written, followed
+            by the motor control system as it was implemented. Each of the UI elements used were manually tested as well. The 
+            system was given commands in a stochastic fashion, and its resulting actions/outputs were observed and validated. 
+            The system was then gradually tested with stand-in components for the real hardware, until finally being tested as 
+            a fully integrated, monolithic unit. All performanc parameters were achieved.
         </p>
         <p>
-            Overall solving these issues has led to a more robust and stable design and we are pleased with our
+            Overall, solving these issues has led to a more robust and stable design. We are pleased with our
             resulting system.
         </p>
     </div>
@@ -350,13 +362,13 @@
             Raspberry Pi, which effectively manipulated the control outputs via serial communication using the external
             hardware I/O device (KL46Z). Adjustments made to the motor position assignment, via the user-interface, were
             successfully represented by the PWM and control signal outputs based on the current position. When power was
-            removed from a motor, the stall routine successfully detected the motor’s lack of responsivity and cut
+            removed from a motor, the stall routine successfully detected the motors lack of responsivity and cut
             PWM-output. All user-functionality was tested and performed as expected.
         </p>
         <p>
             The external amplification circuit design exceeded the desired power specifications by 6V, and a
             corresponding 180W, while meeting electric-current specifications. The circuit effectively powered all 4
-            motors, simultaneously, at the maximum load that was allowable given Cornell’s lab power-supply equipment.
+            motors, simultaneously, at the maximum load that was allowable given Cornells lab power-supply equipment.
             Components handled aggressive directional switching and stress tests without failure. The negative effects
             of back-EMF were also nullified through the appropriation of flywheel diodes. Stress-testing of the motors
             via manual resistance to actuator position changed was futile in negatively affecting any dynamic
@@ -380,14 +392,14 @@
         </p>
         <p>
             Throughout this project, we discovered that the use of high-inductance devices under switching applications
-            yields hazardous back-EMF to connected hardware, and can disable and/or damage connected I/O’s.
+            yields hazardous back-EMF to connected hardware, and can disable and/or damage connected I/O ports.
             Consequently, the use of diodes was well-implemented in order to drain this excess voltage and protect
             peripheral components.
         </p>
         <p>
-            Many issues were encountered throughout the implementation of the software and solutions or workaround were
+            Many issues were encountered throughout the implementation of the software, and solutions or workarounds were
             developed for each of them in turn. In general, the serial link is one factor which still has room for
-            improvement but overall solving these issues has led to a more robust and stable design and we are pleased
+            improvement, but overall, solving these issues has led to a more robust and stable design. We are pleased
             with our resulting system.
         </p>
     </div>
@@ -420,7 +432,11 @@
             <h4>Project group picture</h4>
         </div>
         <div class="col-md-6" style="font-size:16px">
+<<<<<<< HEAD:resources/website/index.html
+            <img class="img-rounded" src="pics/a.jpg" alt="Generic placeholder image" width="240" height="240">
+=======
             <img class="img-rounded" src="pics/Halverson_ProjectProfilePic.jpg" alt="Generic placeholder image" width="240" height="240">
+>>>>>>> d5ea5c8d6ae20ac99b68873e7507a2da496a2b7e:docs/index.html
             <h3>Adam Halverson </h3>
             <p class="lead">abh222@cornell.edu</p>
             <p>
@@ -430,7 +446,7 @@
                 designing an end-to-end system that was capable of meeting the desired functionality specifications
                 given by our project description, all while being within budget constraints ($100). During this time, I
                 also worked with my partner in selecting a suitable hardware I/O device, one which offered the
-                sufficient functionality while remaining compatible with the RasPi. Once we’d selected the appropriate
+                sufficient functionality while remaining compatible with the RasPi. Once we had selected the appropriate
                 hardware and electrical components, it was my responsibility to order, configure, and test my
                 amplification-circuit design for functionality. When feedback issues were encountered in the external
                 circuit, I researched the cause and remedied the problem through additional design work. Upon success, I
