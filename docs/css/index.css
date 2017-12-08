@@ -38,3 +38,8 @@ hr { margin: 20px 0 20px 0; }
     max-width: 224px;
     max-height: 194px;
 }
+
+.ui-no-resize {
+    max-width: 536px;
+    max-height: 376px;
+}
