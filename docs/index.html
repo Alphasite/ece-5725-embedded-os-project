@@ -101,7 +101,7 @@
             The Raspberry Pi communicated via serial to the external hardware I/O device in order to
             invoke these signals. The general system layout is given by (1).
         </p>
-        <div>
+        <div class="figure">
             <img src="pics/diagram.png" class="img-responsive center-block" alt="">
             <p class="text-center caption">
                 Figure 1: High-Level System Flow Chart
@@ -115,7 +115,7 @@
             motor. This is communicated by switching the status light for the respective motor to yellow. The user may
             attempt to move the motor again by simply adjusting the position assignment, or tapping status light.
         </p>
-        <div>
+        <div class="figure">
             <img src="pics/ui.png" class="img-responsive center-block" alt="">
             <p class="text-center caption">
                 Figure 2: Motor-Control System piTFT User-Interface
@@ -143,7 +143,7 @@
             and allows current to flow through. In this case, it closes connection from the negative-terminal of the
             motors to ground, allowing a flow of power to the actuators from the motor power-supply.
         </p>
-        <div>
+        <div class="figure">
             <img src="pics/amp.png" class="img-responsive center-block" alt="">
             <p class="text-center caption">
                 Figure 3: External PWM-Amplification & Control Circuit Design [1]
@@ -154,7 +154,7 @@
             Thus, given a maximum design selection of 24V, each MOSFET must be capable of handling at least 30A of
             current. The selected MOSFETs (4) are capable of handling up to 60V and 30A of continuous load. [2]
         </p>
-        <div>
+        <div class="figure">
 		    <div class="col-md-4" style="text-align:center;">
 				<img class="img-rounded" src="pics/mosfet.png" alt="Generic placeholder image" width="200" height="200">
 			</div>
@@ -182,7 +182,7 @@
             motors when necessary. This may be performed using a single-pole, double throw (SPDT) relay for each port,
             as given by (5).
         </p>
-        <div>
+        <div class="figure">
 			<div class="col-md-4" style="text-align:center;">
 				<img class="img-rounded" src="pics/relay.png" alt="Generic placeholder image" width="200" height="200">
 			</div>
@@ -204,7 +204,7 @@
             tested at a maximum reasonable PWM-frequency of 1kHz while connected to an external DC motor. The results
             are shown in (6).
         </p>
-        <div>
+        <div class="figure">
             <img src="pics/pwm.png" class="img-responsive center-block" alt="">
             <p class="text-center caption">
                 Figure 6: 24V PWM Drive Signal amplified from 3.3V PWM Control Signal
@@ -215,7 +215,7 @@
             precision. Thus, the full circuit was built and fully-configured to interface with all four motors, as shown
             in (7).
         </p>
-        <div>
+        <div class="figure">
             <img src="pics/circuit.png" class="img-responsive center-block" alt="">
             <p class="text-center caption">
                 Figure 7: Fully-Integrated Control Circuit

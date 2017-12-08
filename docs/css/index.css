@@ -20,6 +20,10 @@ hr { margin: 20px 0 20px 0; }
     padding:2rem 2rem 1rem 2rem;
 }
 
+.figure {
+    padding: 2rem 2rem 2rem 2rem;
+}
+
 .small-img {
     width: 450px;
     height: auto;
