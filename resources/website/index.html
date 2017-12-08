@@ -47,9 +47,9 @@
     <div class="starter-template">
         <h1>High-Current Motor Controller</h1>
         <p class="lead">
-            Raspberry Pi & mbed
+            Embedded Motor Control Applications using Raspberry Pi & Mbed
             <br>
-            Project by Adam Halverson (abh222) and Nishad Mathur (nm594).
+            Project by: Adam Halverson (abh222) and Nishad Mathur (nm594)
         </p>
     </div>
 
@@ -63,16 +63,17 @@
 
     <div class="row">
         <div class="col-md-4" style="text-align:center;">
-            <img class="img-rounded" src="pics/1.jpg" alt="Generic placeholder image" width="240" height="240">
+            <img class="img-rounded" src="pics/1.jpg" alt="Generic placeholder image" width="800" height="400">
         </div>
         <div class="col-md-8" style="font-size:18px;">
             <h2>Project Objective:</h2>
             <p style="text-align: left;padding: 0px 30px;">
                 The purpose of this project was to develop a multi-channel, high-current motor control system.
-                In many robotic applications, the ultimately deliverable power of the servo motors is limited
-                by the built-in H-Bridge circuitry, which is typically rated for low-current operation between
-                3.6-7.2V. This system would permit external closed-loop control of high-load DC-motors for up
-                to 30A/24V (0.72kW) per channel.
+                In many robotic applications, the ultimate deliverable power of servo motors is limited
+                by built-in H-Bridge circuitry, which is typically rated for low-current operation between
+                3.6-7.2V. This project's objective was to develop a substitute, closed-loop control system
+				capable of supplying up to 30A/24V (0.72kW) per channel. These channels would draw power
+				from a supply that is also independent of the logic circuitry.
             </p>
         </div>
     </div>
@@ -82,23 +83,23 @@
     <div>
         <h2>Introduction</h2>
         <p>
-            To realize the objective of this project, a Raspberry Pi was fitted with an external I/O device capable of
+            In pursuing the objective of this project, a Raspberry Pi was fitted with an external I/O device that was capable of
             multiple PWM outputs and analog inputs. External amplification circuitry based on N-channel MOSFETs was
-            designed to interface with this device in order to reproduce the control signals at the desired power
-            levels. To enable bi-directional control of the motors without the use of a multi-polarity power source, a
-            relay system was configured for each channel that switches the polarity assignment to the motor terminals
-            based on the embedded controller signal. To reduce hazardous back-EMF voltage spikes brought about by the
-            high-inductance in the switching operation, flywheel diodes were fitted across the respective loads in the
-            external circuit. This was particularly important in protecting the control hardware from back-EMF induced
-            power cycling.
+            designed to interface with this device in order to reproduce the PWM control signals using the external motor power
+            supply. To enable bi-directional control of the motors (without the use of a multi-polarity power source), a
+            relay system was configured for each channel. This switches the polarity assignment to the motor terminals
+            based on the embedded controller signal. To reduce hazardous back-EMF brought about by the
+            high-inductance in the switching operation, flywheel diodes were fitted across the respective inductive loads in the
+            external circuit. This was particularly important in protecting the I/O hardware from back-EMF induced
+            voltage spikes.
         </p>
         <p>
-            The embedded system, which was programmed on the Raspberry Pi, used a myopic policy to control PWM-outputs
-            and movement direction signals. The control policy itself consisted of a simple exponential increase in
-            PWM-output when analog feedback differed from target, up to a certain threshold, saturating at 100%. The
-            control outputted an additional binary signal to switch polarity assignment using the relays when necessary.
-            The Raspberry Pi communicated via serial connection to the external hardware I/O device in order to
-            generate these signals. The general system layout is given by (1).
+            The embedded system, which was programmed on the Raspberry Pi, used a myopic policy to adjust PWM-outputs
+            and motor-direction signals. The control policy itself consisted of a simple exponential increase in
+            PWM-output when analog feedback differed from target, saturating after a specified delta at 100%. The
+            control also outputted a binary signal to switch polarity assignments when retracting the actuators.
+            The Raspberry Pi communicated via serial to the external hardware I/O device in order to
+            invoke these signals. The general system layout is given by (1).
         </p>
         <div>
             <img src="pics/diagram.png" class="img-responsive center-block">
@@ -107,10 +108,10 @@
             </p>
         </div>
         <p>
-            The Raspberry Pi's touchscreen interface allowed for control of 4 motors via adjustment of on-screen
+            The Raspberry Pi's touchscreen interface allowed for control of 4 motors through the adjustment of on-screen
             position bars, with each motor being able to be cycled on/off by clicking the status light above its
             respective feedback display (2). A stall-out routine was also programmed to protect the user/hardware;
-            this temporarily disables the motor in the event maximum PWM-output does not result in movement of the
+            this temporarily disabled the motor in the event that maximum PWM-output did not result in movement of the
             motor. This is communicated by switching the status light for the respective motor to yellow. The user may
             attempt to move the motor again by simply adjusting the position assignment, or tapping status light.
         </p>
@@ -143,7 +144,7 @@
             motors to ground, allowing a flow of power to the actuators from the motor power-supply.
         </p>
         <div>
-            <img src="pics/pwm.png" class="img-responsive center-block">
+            <img src="pics/amp.png" class="img-responsive center-block">
             <p class="text-center caption">
                 Figure 3: External PWM-Amplification & Control Circuit Design [1]
             </p>
@@ -154,7 +155,9 @@
             current. The selected MOSFETs (4) are capable of handling up to 60V and 30A of continuous load. [2]
         </p>
         <div>
-            <img src="pics/mosfet.png" class="img-responsive center-block">
+		    <div class="col-md-4" style="text-align:center;">
+				<img class="img-rounded" src="pics/mosfet.png" alt="Generic placeholder image" width="200" height="200">
+			</div>
             <p class="text-center caption">
                 Figure 4: N-Channel MOSFET (#FQP30N06L, 60V, 30A Continuous Load Rating) [2]
             </p>
@@ -180,13 +183,15 @@
             as given by (5).
         </p>
         <div>
-            <img src="pics/relay.png" class="img-responsive center-block">
+			<div class="col-md-4" style="text-align:center;">
+				<img class="img-rounded" src="pics/relay.png" alt="Generic placeholder image" width="200" height="200">
+			</div>
             <p class="text-center caption">
                 Figure 5: Single-Pole, Double-Throw Relay (#JQX-15F, 30V, 30A Continuous Load Rating) [3]
             </p>
         </div>
         <p>
-            Two of these devices will be required per actuator, capable of swapping both motor ports between the ground
+            Two of these devices will be required per actuator in order to swap both motor ports between the ground
             and positive input signals. Relay pairs will share the same control signal and swap simultaneously. In the
             event of a relay failure, the polarity will simply be the same on both ports, and as such, no hazard is
             presented. However, the required pick-up ratings for the input control signal is 5V, 185mA. [3] Given two
@@ -418,7 +423,7 @@
             <h4>Project group picture</h4>
         </div>
         <div class="col-md-6" style="font-size:16px">
-            <img class="img-rounded" src="pics/a.png" alt="Generic placeholder image" width="240" height="240">
+            <img class="img-rounded" src="pics/a.jpg" alt="Generic placeholder image" width="240" height="240">
             <h3>Adam Halverson </h3>
             <p class="lead">abh222@cornell.edu</p>
             <p>
