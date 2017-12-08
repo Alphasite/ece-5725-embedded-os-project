@@ -1,3 +1,8 @@
+"""
+Nishad Mathur (nm594) & Adam Halverson (abh222)
+Lab 4, Lab Section 02, 01/11/17
+"""
+
 from __future__ import division, print_function
 import os
 import sys

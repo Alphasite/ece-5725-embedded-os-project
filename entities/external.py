@@ -12,6 +12,7 @@ import serial
 
 from entities.entity import Entity
 
+# allow code to run on system without RPI GPIO installed, eg macos
 try:
     from unittest.mock import Mock
 except ImportError:
@@ -89,8 +90,6 @@ class SerialChannel(object):
 
     def send(self, string):
         with self.lock:
-            # print("Request:", string)
-
             if debug:
                 return ""
 
@@ -99,8 +98,6 @@ class SerialChannel(object):
             self.serial.write(string)
 
             response = self.serial.readline().decode().strip()
-
-            # print("Response:", response)
 
             return response
 
@@ -247,12 +244,6 @@ class Actuator(object):
                 self.duty_cycle += target_velocity_delta * (frame_time_s * 2)
                 self.reverse = position_delta < 0
 
-                # print("Target p:", self.target_position)
-                # print("Actual p:", self.position)
-                # print("Target v:", target_velocity)
-                # print("Actual v:", self.duty_cycle)
-                # print("Target d:", target_velocity_delta)
-
         else:
             self.duty_cycle = 0
             self.reverse = False
@@ -279,8 +270,6 @@ class ActuatorController(Entity):
             current_time = time.time()
             frame_time_s = current_time - previous_time
             previous_time = current_time
-
-            # print("Frametime:", frame_time_s)
 
             for analogin in self.channel.analog_inputs:
                 analogin.refresh()

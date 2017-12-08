@@ -1,3 +1,8 @@
+"""
+Nishad Mathur (nm594) & Adam Halverson (abh222)
+Lab 4, Lab Section 02, 01/11/17
+"""
+
 from __future__ import division, print_function
 import os
 import serial
@@ -7,11 +12,6 @@ from entities import red, green, yellow
 from entities.external import ActuatorController
 from entities.loop import RunLoop
 from entities.ui import Label, Button, ModalButton, LinkedProgressSlider, StatusPip, FrameUpdateEvent
-
-"""
-Nishad Mathur (nm594) & Adam Halverson (abh222)
-Lab 4, Lab Section 02, 01/11/17
-"""
 
 import time
 
@@ -119,14 +119,6 @@ def gui(settings, arguments, **kwargs):
                 pip.colour = yellow
             else:
                 pip.colour = green
-
-
-        # for i in range(1, 4):
-        #     controller.actuators[i].stopped = True
-            # actuator = controller.actuators[i]
-            # control = controls[i]
-            # actuator.target_position = 0.0
-            # print(i, actuator.target_position, actuator.position)
 
     entities = []
     entities += labels
