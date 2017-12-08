@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>High-Current Motor Controller</title>
+    <title>High-Current Motor Control System</title>
 
     <link href="dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/index.css" rel="stylesheet">
@@ -45,7 +45,7 @@
 
 <div class="container">
     <div class="starter-template">
-        <h1>High Power Motor Controller</h1>
+        <h1>High-Current Motor Controller</h1>
         <p class="lead">
             Raspberry Pi & mbed
             <br>
@@ -97,7 +97,7 @@
             and movement direction signals. The control policy itself consisted of a simple exponential increase in
             PWM-output when analog feedback differed from target, up to a certain threshold, saturating at 100%. The
             control outputted an additional binary signal to switch polarity assignment using the relays when necessary.
-            The Raspberry Pi communicated via serial connection to the external hardware interface device in order to
+            The Raspberry Pi communicated via serial connection to the external hardware I/O device in order to
             generate these signals. The general system layout is given by (1).
         </p>
         <div>
