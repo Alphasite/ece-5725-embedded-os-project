@@ -144,7 +144,7 @@
             motors to ground, allowing a flow of power to the actuators from the motor power-supply.
         </p>
         <div class="figure">
-            <img src="pics/amp.png" class="img-responsive center-block" alt="">
+            <img src="pics/amp.png" class="img-responsive center-block" style="height: 636px; width: auto" alt="">
             <p class="text-center caption">
                 Figure 3: External PWM-Amplification & Control Circuit Design [1]
             </p>
@@ -155,9 +155,7 @@
             current. The selected MOSFETs (4) are capable of handling up to 60V and 30A of continuous load. [2]
         </p>
         <div class="figure">
-		    <div class="col-md-4" style="text-align:center;">
-				<img class="img-rounded" src="pics/mosfet.png" alt="Generic placeholder image" width="200" height="200">
-			</div>
+            <img src="pics/mosfet.png" class="mostfet-no-resize img-responsive center-block" alt="">
             <p class="text-center caption">
                 Figure 4: N-Channel MOSFET (#FQP30N06L, 60V, 30A Continuous Load Rating) [2]
             </p>
@@ -183,9 +181,7 @@
             as given by (5).
         </p>
         <div class="figure">
-			<div class="col-md-4" style="text-align:center;">
-				<img class="img-rounded" src="pics/relay.png" alt="Generic placeholder image" width="200" height="200">
-			</div>
+            <img src="pics/relay.png" class="relay-no-resize img-responsive center-block" alt="">
             <p class="text-center caption">
                 Figure 5: Single-Pole, Double-Throw Relay (#JQX-15F, 30V, 30A Continuous Load Rating) [3]
             </p>
@@ -253,9 +249,9 @@
         </div>
         <p>
             The ui (as pictured above) has 4 labels, 1 for each servo, 4 status pips (which are modal buttons
-            consisting of an active status pip (green-active, yellow-stall, red-disabled)), 4 slider/progress bar 
-            combos, a modal start/stop button, and a quit button which exits the program. The UI approximately 
-            follows a model-view-controller model, with the view being the UI elements, the controllers being the 
+            consisting of an active status pip (green-active, yellow-stall, red-disabled)), 4 slider/progress bar
+            combos, a modal start/stop button, and a quit button which exits the program. The UI approximately
+            follows a model-view-controller model, with the view being the UI elements, the controllers being the
             UI thread and the motor control thread, and there existing dumb data container models, which are
             periodically synchronized with the microcontroller. The UI system is explained above, but the motor
             controller thread is more interesting.
@@ -265,7 +261,7 @@
             and Actuators. These are container classes that store the data used for the UI state and the motors, which use
             python properties to transform the data from (for example) the 0.3-3.0v range of the analog inputs into the
             0-1 range of the progress bar. This allows for a natural programming model, where repetitive transformations
-            are transparently performed to the data, and the scope is reduced for bugs resulting from a failure to 
+            are transparently performed to the data, and the scope is reduced for bugs resulting from a failure to
             transform inputs correctly.
         </p>
         <p>
@@ -296,21 +292,21 @@
             managing performance in the core loop. Due to limitations on the microcontroller side, we were bandwidth
             constrained on the serial link between the host (Raspberry Pi) and the microcontroller. Many issues
             stemmed from this problem. The first that was encountered during the initial design came from the numerous
-            reads and writes to the I/O device that were synchronously performed in the core rendering loop. Since there 
+            reads and writes to the I/O device that were synchronously performed in the core rendering loop. Since there
             could be multiple reads to a single pin per cycle, this significantly affected performance during the software
             loop, causing refresh rates to drops in PyGame down to single digit FPS, which was unacceptable.
         </p>
         <p>
             There was no magic bullet solution to this problem. The first step that had been taken was increasing
             the baudrate of the system from 9600bps to 57.6kbps, which did significantly improve performance in terms of
-            motor control refresh rate. However, this still left the GUI rendering loop far below an acceptable standards. 
-            Consequently, the control signals were moved over to refreshing in an asynchronous model, with a second thread 
-            running in the background and periodically refreshing the model objects on the client side and the microcontroller 
+            motor control refresh rate. However, this still left the GUI rendering loop far below an acceptable standards.
+            Consequently, the control signals were moved over to refreshing in an asynchronous model, with a second thread
+            running in the background and periodically refreshing the model objects on the client side and the microcontroller
             (as described above). This fully decoupled the motor control logic from the GUI refresh logic, allowing both to
             perform far more effectively.
         </p>
         <p>
-            After these issues were solved, another issue that was discovered was with the serial system. Around 0.1% of 
+            After these issues were solved, another issue that was discovered was with the serial system. Around 0.1% of
             requests to the micro-controller were corrupted. Eventually, this was tracked down to being caused by the 8 byte
             serial receive buffer on the micro-controller overflowing and dropping characters. The solution was to move from a
             fully custom serial command parser to the micro-controllers streaming serial command parser, which is
@@ -322,16 +318,16 @@
             There were also issues which werent related the serial channel, namely due to near abandon-ware status of
             PyGame. Pygame has not been properly ported to python 3, and exhibited a series of extremely strange issues when
             operating under load. This was resolved by backporting the system to python 2, rewriting the code as needed.
-            Code quality was lost, but the tradeoff in stability which justified the decision. The final issue was a mysterious 
+            Code quality was lost, but the tradeoff in stability which justified the decision. The final issue was a mysterious
             and inexplicable hard crash of the operating system when running the system directly on the Raspberry Pi. This
             was eventually tracked down to having being caused by the usage of the RT kernel, and was solved by
             reverting to the standard kernel.
         </p>
         <p>
             Validation involved testing each software component individually. First, the GUI as it was written, followed
-            by the motor control system as it was implemented. Each of the UI elements used were manually tested as well. The 
-            system was given commands in a stochastic fashion, and its resulting actions/outputs were observed and validated. 
-            The system was then gradually tested with stand-in components for the real hardware, until finally being tested as 
+            by the motor control system as it was implemented. Each of the UI elements used were manually tested as well. The
+            system was given commands in a stochastic fashion, and its resulting actions/outputs were observed and validated.
+            The system was then gradually tested with stand-in components for the real hardware, until finally being tested as
             a fully integrated, monolithic unit. All performanc parameters were achieved.
         </p>
         <p>
